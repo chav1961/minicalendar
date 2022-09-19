@@ -1,14 +1,19 @@
 package chav1961.minicalendar;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.Timer;
 
 import javax.swing.JPopupMenu;
 
+import chav1961.minicalendar.service.RequestEngine;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
@@ -32,9 +37,11 @@ public class Application {
 	public static final String	APP_TOOLTIP = "application.tooltip";
 
 	public static final String	ARG_PORT = "port";
-	public static final int		ARG_PORT_DEFAULT = 23000;
+	public static final int		ARG_PORT_DEFAULT = 23109;
 	public static final String	ARG_PROPFILE_LOCATION = "prop";
 	public static final String	ARG_PROPFILE_LOCATION_DEFAULT = "./.minicalendar.properties";
+	
+	public static final String	PATH_CONTENT = "/content";
 
 	public static final String	PROP_JDBC_DRIVER = "jdbcDriver";
 	public static final String	PROP_JDBC_CONN_STRING = "jdbcConnString";
@@ -47,6 +54,7 @@ public class Application {
 	private static NanoServiceFactory	factory;
 	private static LocaleChangeListener	lcl;
 	private static Maintenance			maint;
+	private static RequestEngine		engine;
 	
 	public static void main(final String[] args) {
 		try{final ArgParser						parser = new ApplicationArgParser().parse(args);
@@ -57,8 +65,12 @@ public class Application {
 														,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
 													));
 		
-			try(final InputStream				is = Application.class.getResourceAsStream("application.xml")) {
+			try(final InputStream				is = Application.class.getResourceAsStream("application.xml");
+				final InputStream				dbIs = Application.class.getResourceAsStream("model.json");
+				final Reader					dbRdr = new InputStreamReader(dbIs, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {
 				final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);
+				final ContentMetadataInterface	dbModel = ContentModelFactory.forJsonDescription(dbRdr);
+				
 				final Localizer					localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
 				final JPopupMenu				trayMenu = SwingUtils.toJComponent(xda.byUIPath(URI.create("ui:/model/navigation.top.traymenu")), JPopupMenu.class);
 				final SubstitutableProperties	appProps = SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class));
@@ -68,15 +80,18 @@ public class Application {
 				
 				tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 				factory = new NanoServiceFactory(tray, props);
+				engine = new RequestEngine(xda.getRoot(), localizer, tray, appProps);
 			
 				tray.addActionListener((e)->callBrowser(portNumber));
 				lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
 				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
-				maint = new Maintenance(appProps);
-				
+				maint = new Maintenance(appProps, dbModel.getRoot());
+
+				factory.deploy(PATH_CONTENT, engine);				
 				timer.schedule(maint, 30000, 30000);
+				
 				factory.start();
-			} catch (URISyntaxException | EnvironmentException | IOException | ContentException exc) {
+			} catch (URISyntaxException | EnvironmentException | IOException | ContentException | SQLException exc) {
 				System.exit(128);			
 			}
 		} catch (CommandLineParametersException exc) {
@@ -84,16 +99,24 @@ public class Application {
 		}
 	}
 
-	private static void callBrowser(final int value) {
-		// TODO Auto-generated method stub
+	private static void callBrowser(final int portNumber) {
+		if (Desktop.isDesktopSupported()) {
+			try{Desktop.getDesktop().browse(URI.create("http://localhost:"+portNumber+"/static/index.html"));
+			} catch (IOException e) {
+				tray.message(Severity.error, e, e.getLocalizedMessage());
+			}
+		}
+		else {
+			tray.message(Severity.error, "Desktop is not supported");
+		}
 	}
-
 
 	public static void terminate(final String[] args) {
 		maint.cancel();
 		timer.purge();
-		try{
-			factory.stop();
+		
+		try{factory.stop();
+			factory.undeploy(PATH_CONTENT);
 		} catch (IOException exc) {
 			tray.message(Severity.error, exc, exc.getLocalizedMessage());
 		}

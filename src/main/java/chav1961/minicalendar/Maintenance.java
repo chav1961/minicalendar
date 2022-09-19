@@ -12,17 +12,23 @@ import java.util.TimerTask;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.exceptions.ContentException;
+import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.sql.JDBCUtils;
 
 public class Maintenance extends TimerTask {
 	private final SubstitutableProperties	props;
+	private final ContentNodeMetadata		root;
 	
-	public Maintenance(final SubstitutableProperties props) {
+	public Maintenance(final SubstitutableProperties props, final ContentNodeMetadata root) {
 		if (props == null) {
 			throw new NullPointerException("Properties can't be null");
 		}
+		else if (root == null) {
+			throw new NullPointerException("Root model can't be null");
+		}
 		else {
 			this.props = props;
+			this.root = root;
 		}
 	}
 
