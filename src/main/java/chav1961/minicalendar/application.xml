@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app:root xmlns:app="http://ui.purelib.chav1961/">
+	<app:i18n location="i18n:xml:root://chav1961.elibrary.Application/chav1961/elibrary/i18n/i18n.xml"/>
+	<app:menu id="traymenu">
+		<app:item name="tray.site" caption="tray.site" tooltip="tray.site.tt" action="tray.site"/>
+		<app:item name="tray.show" caption="tray.show" tooltip="tray.show.tt" action="tray.show"/>
+		<app:separator/>
+		<app:item name="tray.about" caption="tray.about" tooltip="tray.about.tt" action="tray.about"/>
+		<app:separator/>
+		<app:item name="tray.quit" caption="tray.quit" tooltip="tray.quit.tt" action="tray.quit"/>
+	</app:menu>
+	<app:menu id="mainmenu">
+		<app:submenu name="menu.main.file" caption="menu.main.file" tooltip="menu.main.file.tt">
+			<app:item name="menu.main.file.connect" caption="menu.main.file.connect" tooltip="menu.main.file.connect.tt" action="main.file.connect"/>
+			<app:item name="menu.main.file.disconnect" caption="menu.main.file.disconnect" tooltip="menu.main.file.disconnect.tt" action="main.file.disconnect"/>
+			<app:separator/>
+			<app:item name="menu.main.file.nsi" caption="menu.main.file.nsi" tooltip="menu.main.file.nsi.tt" action="main.file.nsi"/>
+			<app:item name="menu.main.file.books" caption="menu.main.file.books" tooltip="menu.main.file.books.tt" action="main.file.books"/>
+			<app:separator/>
+			<app:item name="menu.main.file.quit" caption="menu.main.file.quit" tooltip="menu.main.file.quit.tt" action="main.file.quit"/>
+		</app:submenu>
+		<app:submenu name="menu.main.tools" caption="menu.main.tools" tooltip="menu.main.tools.tt">
+			<app:submenu name="menu.main.tools.database" caption="menu.main.tools.database" tooltip="menu.main.tools.database.tt">
+				<app:item name="menu.main.tools.database.create" caption="menu.main.tools.database.create" tooltip="menu.main.tools.database.create.tt" action="main.tools.database.create"/>
+				<app:item name="menu.main.tools.database.upgrade" caption="menu.main.tools.database.upgrade" tooltip="menu.main.tools.database.upgrade.tt" action="main.tools.database.upgrade"/>
+				<app:separator/>
+				<app:item name="menu.main.tools.database.backup" caption="menu.main.tools.database.backup" tooltip="menu.main.tools.database.backup.tt" action="main.tools.database.backup"/>
+				<app:item name="menu.main.tools.database.restore" caption="menu.main.tools.database.restore" tooltip="menu.main.tools.database.restore.tt" action="main.tools.database.restore"/>
+			</app:submenu>
+			<app:submenu name="menu.main.tools.indexer" caption="menu.main.tools.indexer" tooltip="menu.main.tools.indexer.tt">
+				<app:item name="menu.main.tools.indexer.create" caption="menu.main.tools.indexer.create" tooltip="menu.main.tools.database.indexer.tt" action="main.tools.indexer.create"/>
+				<app:item name="menu.main.tools.indexer.upgrade" caption="menu.main.tools.indexer.upgrade" tooltip="menu.main.tools.database.indexer.tt" action="main.tools.indexer.upgrade"/>
+				<app:separator/>
+				<app:item name="menu.main.tools.indexer.search" caption="menu.main.tools.indexer.search" tooltip="menu.main.tools.indexer.search.tt" action="main.tools.indexer.search"/>
+			</app:submenu>
+			<app:separator/>
+			<app:item name="menu.main.tools.settings" caption="menu.main.tools.settings" tooltip="menu.main.tools.settings.tt" action="main.tools.settings"/>
+			<app:builtinSubmenu name="builtin.languages" caption="menu.main.tools.languages" tooltip="menu.main.tools.languages.tt"/>
+		</app:submenu>
+		<app:submenu name="menu.main.help" caption="menu.main.help" tooltip="menu.main.help.tt">
+			<app:item name="menu.main.help.test" caption="menu.main.help.test" tooltip="menu.main.help.test.tt" action="main.help.test"/>
+			<app:separator/>
+			<app:item name="menu.main.help.about" caption="menu.main.help.about" tooltip="menu.main.help.about.tt" action="main.help.about"/>
+		</app:submenu>
+	</app:menu>
+	<app:keyset id="mainmenu.keyset">
+		<app:key code="N" ctrl="true" action="main.file.connect"/>
+		<app:key code="Q" ctrl="true" action="main.file.quit"/>
+	</app:keyset>
+	<app:menu id="booklistmenu">
+		<app:item name="menu.booklist.copy" caption="menu.booklist.copy" tooltip="menu.booklist.copy.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/copy.png" action="booklist.copy"/>
+		<app:item name="menu.booklist.paste" caption="menu.booklist.paste" tooltip="menu.booklist.paste.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/paste.png" action="booklist.paste"/>
+		<app:separator/>
+		<app:item name="menu.booklist.insert" caption="menu.booklist.insert" tooltip="menu.booklist.insert.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/insert.png" action="booklist.insert"/>
+		<app:item name="menu.booklist.duplicate" caption="menu.booklist.duplicate" tooltip="menu.booklist.duplicate.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/duplicate.png" action="booklist.duplicate"/>
+		<app:item name="menu.booklist.edit" caption="menu.booklist.edit" tooltip="menu.booklist.edit.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/edit.png" action="booklist.edit"/>
+		<app:item name="menu.booklist.delete" caption="menu.booklist.delete" tooltip="menu.booklist.delete.tt" icon="root://chav1961.elibrary.Application/chav1961/elibrary/icons/delete.png" action="booklist.delete"/>
+	</app:menu>
+	<app:keyset id="booklistmenu.keyset">
+		<app:key code="C" ctrl="true" action="booklist.copy"/>
+		<app:key code="V" ctrl="true" action="booklist.paste"/>
+		<app:key code="INSERT" action="booklist.insert"/>
+		<app:key code="INSERT" ctrl="true" shift="true" action="booklist.duplicate"/>
+		<app:key code="ENTER" action="booklist.edit"/>
+		<app:key code="DELETE" action="booklist.delete"/>
+	</app:keyset>
+	<app:menu id="bottomtoolbar">
+		<app:item name="menu.bottomtoolbar.save" caption="menu.bottomtoolbar.save" tooltip="menu.bottomtoolbar.save.tt" action="bottomtoolbar.save"/>
+		<app:item name="menu.bottomtoolbar.cancel" caption="menu.bottomtoolbar.cancel" tooltip="menu.bottomtoolbar.cancel.tt" action="bottomtoolbar.cancel"/>
+		<app:item name="menu.bottomtoolbar.help" caption="menu.bottomtoolbar.help" tooltip="menu.bottomtoolbar.help.tt" action="bottomtoolbar.help"/>
+	</app:menu>
+	<app:keyset id="bottomtoolbar.keyset">
+		<app:key code="Enter" shift="true" action="bottomtoolbar.save"/>
+		<app:key code="Escape" shift="true" action="bottomtoolbar.cancel"/>
+		<app:key code="F1" action="bottomtoolbar.help"/>
+	</app:keyset>
+</app:root>

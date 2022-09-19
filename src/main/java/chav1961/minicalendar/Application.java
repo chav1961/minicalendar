@@ -1,10 +1,21 @@
 package chav1961.minicalendar;
 
-public class Application {
+import chav1961.purelib.ui.swing.useful.JSystemTray;
 
-	public static void main(String[] args) {
+public class Application {
+	
+	
+
+	public static void main(final String[] args) {
 		// TODO Auto-generated method stub
 
 	}
+
+
+	public static void terminate(final String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
 
 }
