@@ -19,7 +19,7 @@ import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 
-public class RadioButtonSelector extends JPanel implements LocaleChangeListener{
+public class RadioButtonSelector extends JPanel implements LocaleChangeListener {
 	private static final long serialVersionUID = 1L;
 
 	private final Localizer			localizer;

@@ -5,16 +5,12 @@ import java.io.File;
 import java.net.URI;
 import java.util.Locale;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -22,7 +18,6 @@ import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
-import chav1961.purelib.model.ContentMetadataFilter;
 import chav1961.purelib.model.FieldFormat;
 import chav1961.purelib.model.MutableContentNodeMetadata;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
@@ -31,7 +26,6 @@ import chav1961.purelib.ui.swing.JFileFieldWithMeta;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.JComponentInterface;
 import chav1961.purelib.ui.swing.interfaces.JComponentMonitor;
-import chav1961.purelib.ui.swing.interfaces.JComponentMonitor.MonitorEvent;
 
 public class WorkingDirectorySelector extends JPanel implements LocaleChangeListener {
 	private static final long 			serialVersionUID = 1L;
@@ -111,6 +105,7 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 			this.space = new JTable(new SpaceTableModel(localizer));
 			final JScrollPane	pane = new JScrollPane(this.space); 
 			
+			pane.setFocusable(false);
 			pane.setBorder(spaceBorder);
 			
 			add(panel, BorderLayout.NORTH);
@@ -146,7 +141,8 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 	}
 	
 	private static class SpaceTableModel extends DefaultTableModel {
-		private static final long serialVersionUID = 1L;
+		private static final long 	serialVersionUID = 1L;
+		private static final long	MBYTE = 1024 * 1024; 
 		
 		private final Localizer	localizer;
 		
@@ -199,8 +195,8 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 		public Object getValueAt(final int rowIndex, final int columnIndex) {
 			switch (columnIndex) {
 				case 0	: return File.listRoots()[rowIndex].getAbsolutePath();
-				case 1	: return File.listRoots()[rowIndex].getTotalSpace();
-				case 2	: return File.listRoots()[rowIndex].getFreeSpace();
+				case 1	: return File.listRoots()[rowIndex].getTotalSpace() / MBYTE;
+				case 2	: return File.listRoots()[rowIndex].getFreeSpace() / MBYTE;
 				default : throw new UnsupportedOperationException("Column index["+columnIndex+"] is not supported yet");
 			}
 		}

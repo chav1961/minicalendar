@@ -556,26 +556,26 @@
 		<key name="html.snippet.query.lucenehelp">uri(lucenehelp.cre)</key>
 		
 <!-- Локализация форм установки --> 
-		<key name="installation.step1.caption">Caption 1</key>
-		<key name="installation.step1.description">Description 1</key>
-		<key name="installation.step1.help">Help 1</key>
-		<key name="installation.step1.select.install">install</key>
-		<key name="installation.step1.select.update">Update</key>
-		<key name="installation.step1.select.remove">Remove</key>
+		<key name="installation.step1.caption">Выбор режима</key>
+		<key name="installation.step1.description">Выбор режима работы:</key>
+		<key name="installation.step1.help">&lt;p&gt;Режим работы определяет, что именно будет делать инсталлятор. Он может установить ваше приложение на "чистый" компьютер, может удалить его с компьютера, а может обновить установленное у вас программное обеспечение.&lt;/p&gt; &lt;br/&gt; &lt;p&gt;Выберите, что именно вы желаете выполнить:&lt;/p&gt;&lt;&lt;br/&gt;</key>
+		<key name="installation.step1.select.install">Установить приложение</key>
+		<key name="installation.step1.select.update">Обновить программное обеспечение</key>
+		<key name="installation.step1.select.remove">Удалить ранее установленное приложение</key>
 		
-		<key name="installation.step2.caption">Caption 2</key>
-		<key name="installation.step2.description">Description 2</key>
-		<key name="installation.step2.help">Help 2</key>
+		<key name="installation.step2.caption">Папка для приложения: </key>
+		<key name="installation.step2.description">Выбор папки для установки приложения</key>
+		<key name="installation.step2.help">&lt;p&gt;Выберите папку, куда будут скопированы все необходимые для работы приложения файлы. Папка может находиться на любом диске вашего компьютера, но на диске должно быть достаточно места для установки. Если выбрана существующая папка, все ее содержимое будет удалено в процессе установки. Если вы указали несуществующую папку, она будет вновь создана.&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Выберите папку для установки:&lt;/p&gt;&lt;&lt;br/&gt;</key>
 		
-		<key name="installation.step2.validation.notexists">Directory [%1$s] not exists</key>
-		<key name="installation.step2.validation.notaccessible">Directory [%1$s] doesn't have write access rights for you</key>
-		<key name="installation.step2.validation.notadirectory">Entity [%1$s] is a file, not a directory</key>
-		<key name="installation.step2.confirm.title">Confirm directory clean</key>
-		<key name="installation.step2.confirm.message">Directory [%1$s] is not empty and it's content will be deleted upon installation!\n Do you wish to continue?</key>
+		<key name="installation.step2.validation.notexists">Папка [%1$s] не существует</key>
+		<key name="installation.step2.validation.notaccessible">Для папки [%1$s] у вас нет прав доступа на запись</key>
+		<key name="installation.step2.validation.notadirectory">Указана не папка, а файл [%1$s] !</key>
+		<key name="installation.step2.confirm.title">Очистка папки</key>
+		<key name="installation.step2.confirm.message">&lt;p&gt;Папка [%1$s] в данный момент не пуста. Все ее содержимое будет удалено в процессе установки!&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Хотите продолжить?&lt;/p&gt;</key>
 		
-		<key name="installation.step3.caption">Caption 1</key>
-		<key name="installation.step3.description">Description 1</key>
-		<key name="installation.step3.help">Help 1</key>
+		<key name="installation.step3.caption">Выбор режима</key>
+		<key name="installation.step3.description">Выбор режима работы:</key>
+		<key name="installation.step3.help">Режим работы определяет, что именно будет делать инсталлятор. Он может установить ваше приложение на "чистый" компьютер, может удалить его с компьютера, а может обновить установленное у вас программное обеспечение.\nВыберите, что именно вы желаете выполнить:"</key>
 		
 		<key name="installation.step4.caption">Caption 1</key>
 		<key name="installation.step4.description">Description 1</key>
@@ -626,14 +626,14 @@
 		<key name="installation.step15.help">Help 1</key>
 
 <!-- Локализация класса WorkingDirectorySelector: --> 
-		<key name="WorkingDirectorySelector.file.label">Label</key>
-		<key name="WorkingDirectorySelector.file.tooltip">Tooltip</key>
+		<key name="WorkingDirectorySelector.file.label">Выберите папку</key>
+		<key name="WorkingDirectorySelector.file.tooltip">Выберите папку, в которую будет установлено ваше приложение</key>
 		<key name="WorkingDirectorySelector.file.help">Help</key>
-		<key name="WorkingDirectorySelector.file.available.border.caption">Available space on file systems:</key>
-		<key name="WorkingDirectorySelector.file.sizeapprox">Size required is approx %1$d MBytes</key>
-		<key name="WorkingDirectorySelector.file.space.root">Root</key>
-		<key name="WorkingDirectorySelector.file.space.total">Total</key>
-		<key name="WorkingDirectorySelector.file.space.available">Available</key>
+		<key name="WorkingDirectorySelector.file.available.border.caption">Свободное место в файловой системе:</key>
+		<key name="WorkingDirectorySelector.file.sizeapprox">Требуется примерно %1$d МБайт</key>
+		<key name="WorkingDirectorySelector.file.space.root">Корень ФС</key>
+		<key name="WorkingDirectorySelector.file.space.total">Всего, МБайт</key>
+		<key name="WorkingDirectorySelector.file.space.available">Доступно, МБайт</key>
 		
 	</lang>	
 </localization>

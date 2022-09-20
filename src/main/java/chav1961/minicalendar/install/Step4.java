@@ -8,7 +8,6 @@ import javax.swing.JLabel;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.interfaces.WizardStep;
-import chav1961.purelib.ui.interfaces.WizardStep.StepType;
 
 /*
  * Install branch: Ask tablespace, schema and user/password

@@ -3,7 +3,6 @@ package chav1961.minicalendar.install;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 import chav1961.minicalendar.install.components.RadioButtonSelector;
 import chav1961.minicalendar.interfaces.InstallMode;
@@ -24,8 +23,6 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 	public static final String	KEY_SELECT_UPDATE = "installation.step1.select.update";
 	public static final String	KEY_SELECT_REMOVE = "installation.step1.select.remove";
 	
-	
-	private final Localizer				localizer;
 	private final RadioButtonSelector	rbs;
 	
 	public Step1(final Localizer localizer) {
@@ -33,7 +30,6 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 			throw new NullPointerException("Localizer can't be null"); 
 		}
 		else {
-			this.localizer = localizer;
 			this.rbs = new RadioButtonSelector(localizer, KEY_SELECT_INSTALL, KEY_SELECT_UPDATE, KEY_SELECT_REMOVE);
 		}
 	}
