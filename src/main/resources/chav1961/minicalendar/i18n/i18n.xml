@@ -238,6 +238,85 @@
 		<key name="html.snippet.query.placehlder">Use Lucene syntax to type query...</key>
 		<key name="html.snippet.query.lucenehelp">uri(lucenehelp.cre)</key>
 		
+<!-- Installation forms localization --> 
+		<key name="installation.step1.caption">Caption 1</key>
+		<key name="installation.step1.description">Description 1</key>
+		<key name="installation.step1.help">Help 1</key>
+		<key name="installation.step1.select.install">install</key>
+		<key name="installation.step1.select.update">Update</key>
+		<key name="installation.step1.select.remove">Remove</key>
+		
+		<key name="installation.step2.caption">Caption 2</key>
+		<key name="installation.step2.description">Description 2</key>
+		<key name="installation.step2.help">Help 2</key>
+		<key name="installation.step2.validation.notexists">Directory [%1$s] not exists</key>
+		<key name="installation.step2.validation.notaccessible">Directory [%1$s] doesn't have write access rights for you</key>
+		<key name="installation.step2.validation.notadirectory">Entity [%1$s] is a file, not a directory</key>
+		<key name="installation.step2.confirm.title">Confirm directory clean</key>
+		<key name="installation.step2.confirm.message">Directory [%1$s] is not empty and it's content will be deleted upon installation!\n Do you wish to continue?</key>
+		
+		<key name="installation.step3.caption">Caption 1</key>
+		<key name="installation.step3.description">Description 1</key>
+		<key name="installation.step3.help">Help 1</key>
+		
+		<key name="installation.step4.caption">Caption 1</key>
+		<key name="installation.step4.description">Description 1</key>
+		<key name="installation.step4.help">Help 1</key>
+		
+		<key name="installation.step5.caption">Caption 1</key>
+		<key name="installation.step5.description">Description 1</key>
+		<key name="installation.step5.help">Help 1</key>
+		
+		<key name="installation.step6.caption">Caption 1</key>
+		<key name="installation.step6.description">Description 1</key>
+		<key name="installation.step6.help">Help 1</key>
+		
+		<key name="installation.step7.caption">Caption 1</key>
+		<key name="installation.step7.description">Description 1</key>
+		<key name="installation.step7.help">Help 1</key>
+		
+		<key name="installation.step8.caption">Caption 1</key>
+		<key name="installation.step8.description">Description 1</key>
+		<key name="installation.step8.help">Help 1</key>
+		
+		<key name="installation.step9.caption">Caption 1</key>
+		<key name="installation.step9.description">Description 1</key>
+		<key name="installation.step9.help">Help 1</key>
+		
+		<key name="installation.step10.caption">Caption 1</key>
+		<key name="installation.step10.description">Description 1</key>
+		<key name="installation.step10.help">Help 1</key>
+		
+		<key name="installation.step11.caption">Caption 1</key>
+		<key name="installation.step11.description">Description 1</key>
+		<key name="installation.step11.help">Help 1</key>
+		
+		<key name="installation.step12.caption">Caption 1</key>
+		<key name="installation.step12.description">Description 1</key>
+		<key name="installation.step12.help">Help 1</key>
+		
+		<key name="installation.step13.caption">Caption 1</key>
+		<key name="installation.step13.description">Description 1</key>
+		<key name="installation.step13.help">Help 1</key>
+		
+		<key name="installation.step14.caption">Caption 1</key>
+		<key name="installation.step14.description">Description 1</key>
+		<key name="installation.step14.help">Help 1</key>
+		
+		<key name="installation.step15.caption">Caption 1</key>
+		<key name="installation.step15.description">Description 1</key>
+		<key name="installation.step15.help">Help 1</key>
+		
+<!-- WorkingDirectorySelector class localization: --> 
+		<key name="WorkingDirectorySelector.file.label">Label</key>
+		<key name="WorkingDirectorySelector.file.tooltip">Tooltip</key>
+		<key name="WorkingDirectorySelector.file.help">Help</key>
+		<key name="WorkingDirectorySelector.file.available.border.caption">Available space on file systems:</key>		
+		<key name="WorkingDirectorySelector.file.sizeapprox">Size required is approx %1$d MBytes</key>
+		<key name="WorkingDirectorySelector.file.space.root">Root</key>
+		<key name="WorkingDirectorySelector.file.space.total">Total</key>
+		<key name="WorkingDirectorySelector.file.space.available">Available</key>
+		
 	</lang>
 	<lang name="ru">
 <!-- Локализация заголовков приложения -->
@@ -475,6 +554,86 @@
 		<key name="html.snippet.query.search">Найти</key>
 		<key name="html.snippet.query.placehlder">Используйте синтаксис Lucene...</key>
 		<key name="html.snippet.query.lucenehelp">uri(lucenehelp.cre)</key>
+		
+<!-- Локализация форм установки --> 
+		<key name="installation.step1.caption">Caption 1</key>
+		<key name="installation.step1.description">Description 1</key>
+		<key name="installation.step1.help">Help 1</key>
+		<key name="installation.step1.select.install">install</key>
+		<key name="installation.step1.select.update">Update</key>
+		<key name="installation.step1.select.remove">Remove</key>
+		
+		<key name="installation.step2.caption">Caption 2</key>
+		<key name="installation.step2.description">Description 2</key>
+		<key name="installation.step2.help">Help 2</key>
+		
+		<key name="installation.step2.validation.notexists">Directory [%1$s] not exists</key>
+		<key name="installation.step2.validation.notaccessible">Directory [%1$s] doesn't have write access rights for you</key>
+		<key name="installation.step2.validation.notadirectory">Entity [%1$s] is a file, not a directory</key>
+		<key name="installation.step2.confirm.title">Confirm directory clean</key>
+		<key name="installation.step2.confirm.message">Directory [%1$s] is not empty and it's content will be deleted upon installation!\n Do you wish to continue?</key>
+		
+		<key name="installation.step3.caption">Caption 1</key>
+		<key name="installation.step3.description">Description 1</key>
+		<key name="installation.step3.help">Help 1</key>
+		
+		<key name="installation.step4.caption">Caption 1</key>
+		<key name="installation.step4.description">Description 1</key>
+		<key name="installation.step4.help">Help 1</key>
+		
+		<key name="installation.step5.caption">Caption 1</key>
+		<key name="installation.step5.description">Description 1</key>
+		<key name="installation.step5.help">Help 1</key>
+		
+		<key name="installation.step6.caption">Caption 1</key>
+		<key name="installation.step6.description">Description 1</key>
+		<key name="installation.step6.help">Help 1</key>
+		
+		<key name="installation.step7.caption">Caption 1</key>
+		<key name="installation.step7.description">Description 1</key>
+		<key name="installation.step7.help">Help 1</key>
+		
+		<key name="installation.step8.caption">Caption 1</key>
+		<key name="installation.step8.description">Description 1</key>
+		<key name="installation.step8.help">Help 1</key>
+		
+		<key name="installation.step9.caption">Caption 1</key>
+		<key name="installation.step9.description">Description 1</key>
+		<key name="installation.step9.help">Help 1</key>
+		
+		<key name="installation.step10.caption">Caption 1</key>
+		<key name="installation.step10.description">Description 1</key>
+		<key name="installation.step10.help">Help 1</key>
+		
+		<key name="installation.step11.caption">Caption 1</key>
+		<key name="installation.step11.description">Description 1</key>
+		<key name="installation.step11.help">Help 1</key>
+		
+		<key name="installation.step12.caption">Caption 1</key>
+		<key name="installation.step12.description">Description 1</key>
+		<key name="installation.step12.help">Help 1</key>
+		
+		<key name="installation.step13.caption">Caption 1</key>
+		<key name="installation.step13.description">Description 1</key>
+		<key name="installation.step13.help">Help 1</key>
+		
+		<key name="installation.step14.caption">Caption 1</key>
+		<key name="installation.step14.description">Description 1</key>
+		<key name="installation.step14.help">Help 1</key>
+		
+		<key name="installation.step15.caption">Caption 1</key>
+		<key name="installation.step15.description">Description 1</key>
+		<key name="installation.step15.help">Help 1</key>
+
+<!-- Локализация класса WorkingDirectorySelector: --> 
+		<key name="WorkingDirectorySelector.file.label">Label</key>
+		<key name="WorkingDirectorySelector.file.tooltip">Tooltip</key>
+		<key name="WorkingDirectorySelector.file.help">Help</key>
+		<key name="WorkingDirectorySelector.file.available.border.caption">Available space on file systems:</key>
+		<key name="WorkingDirectorySelector.file.sizeapprox">Size required is approx %1$d MBytes</key>
+		<key name="WorkingDirectorySelector.file.space.root">Root</key>
+		<key name="WorkingDirectorySelector.file.space.total">Total</key>
+		<key name="WorkingDirectorySelector.file.space.available">Available</key>
 		
 	</lang>	
 </localization>

@@ -3,6 +3,7 @@ package chav1961.minicalendar.install;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
@@ -27,6 +28,11 @@ public class Step8 implements WizardStep<InstallationDescriptor, InstallationErr
 	}
 
 	@Override
+	public String getPrevStep() {
+		return Step1.class.getSimpleName();
+	}
+	
+	@Override
 	public String getCaption() {
 		return KEY_CAPTION;
 	}
@@ -43,8 +49,7 @@ public class Step8 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public JComponent getContent() {
-		// TODO Auto-generated method stub
-		return null;
+		return new JLabel(getStepId());
 	}
 
 	@Override

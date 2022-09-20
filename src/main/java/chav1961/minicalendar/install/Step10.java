@@ -3,6 +3,7 @@ package chav1961.minicalendar.install;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
@@ -47,8 +48,7 @@ public class Step10 implements WizardStep<InstallationDescriptor, InstallationEr
 
 	@Override
 	public JComponent getContent() {
-		// TODO Auto-generated method stub
-		return null;
+		return new JLabel(getStepId());
 	}
 
 	@Override
