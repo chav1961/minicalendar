@@ -16,6 +16,7 @@ import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.exceptions.SyntaxException;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
+import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.FieldFormat;
@@ -27,7 +28,7 @@ import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.JComponentInterface;
 import chav1961.purelib.ui.swing.interfaces.JComponentMonitor;
 
-public class WorkingDirectorySelector extends JPanel implements LocaleChangeListener {
+public class WorkingDirectorySelector extends JPanel implements LocaleChangeListener, ModuleAccessor {
 	private static final long 			serialVersionUID = 1L;
 	public static final String			KEY_LABEL = "WorkingDirectorySelector.file.label";
 	public static final String			KEY_TOOLTIP = "WorkingDirectorySelector.file.tooltip";
@@ -131,6 +132,13 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 		}
 		else {
 			this.currentFile = newFile;
+		}
+	}
+
+	@Override
+	public void allowUnnamedModuleAccess(final Module... unnamedModules) {
+		for (Module item : unnamedModules) {
+			this.getClass().getModule().addExports(this.getClass().getPackageName(),item);
 		}
 	}
 	

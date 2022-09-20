@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -20,6 +22,7 @@ import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.i18n.LocalizerFactory;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.model.ContentModelFactory;
+import chav1961.purelib.model.ReflectedMapWrapper;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.swing.useful.JDialogContainer;
@@ -33,6 +36,14 @@ public class InstallationWizard {
 	public static final String	ARG_CONFIRM = "y";
 	public static final String	ARG_PROPFILE_LOCATION = "prop";
 	public static final String	ARG_PROPFILE_LOCATION_DEFAULT = "./.minicalendar.properties";
+	
+	public static final File	LAST_STATE = new File("./.install.last");
+	public static final String	LAST_STATE_CONTENT_TYPE = "contentType";
+	public static final String	LAST_STATE_CONTENT_TYPE_AWAITED = "minicalendar";
+
+	public static final String	KEY_CONFIRM_RESTORE_TITLE = "installer.confirm.restore.title";
+	public static final String	KEY_CONFIRM_RESTORE_MESSAGE = "installer.confirm.restore.message";
+	
 	
 	public static void main(final String[] args) {
 		try(final Reader					rdr = new InputStreamReader(System.in);
@@ -66,15 +77,29 @@ public class InstallationWizard {
 				}
 				else {
 					final Localizer					localizer = LocalizerFactory.getLocalizer(appModel.getRoot().getLocalizerAssociated());
-					final InstallationDescriptor	desc = new InstallationDescriptor();
-					final ErrorProcessing<InstallationDescriptor, InstallationError>				ep = new ErrorProcessing<InstallationDescriptor, InstallationError>() {
+					
+					PureLibSettings.PURELIB_LOCALIZER.push(localizer);
+					
+					final SubstitutableProperties	lastStateProps = LAST_STATE.exists() && LAST_STATE.isFile() && LAST_STATE.canRead() ? SubstitutableProperties.of(LAST_STATE) : new SubstitutableProperties();
+					final ErrorProcessing<InstallationDescriptor, InstallationError>	ep = new ErrorProcessing<InstallationDescriptor, InstallationError>() {
 														@Override
 														public void processWarning(final InstallationDescriptor content, final InstallationError err, final Object... parameters) {
 															new JLocalizedOptionPane(localizer).message(null, err.name(), ARG_CONFIRM, JOptionPane.WARNING_MESSAGE);
 														}
 													};
+					final InstallationDescriptor	desc = new InstallationDescriptor();
 					
-					PureLibSettings.PURELIB_LOCALIZER.push(localizer);
+					if (lastStateProps.containsKey(LAST_STATE_CONTENT_TYPE) && lastStateProps.getProperty(LAST_STATE_CONTENT_TYPE).equals(LAST_STATE_CONTENT_TYPE_AWAITED)) {
+						if (new JLocalizedOptionPane(localizer).confirm(null, KEY_CONFIRM_RESTORE_MESSAGE, KEY_CONFIRM_RESTORE_TITLE, JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+							final ReflectedMapWrapper	wrapper = new ReflectedMapWrapper(desc);	// Quick deserialization
+							
+							for (Entry<Object, Object> item : lastStateProps.entrySet()) {
+								if (!LAST_STATE_CONTENT_TYPE.equals(item.getKey())) {
+									wrapper.put((String)item.getKey(), lastStateProps.getProperty((String)item.getKey(), wrapper.getValueClass((String)item.getKey())));
+								}
+							}
+						}
+					}
 					
 					final JDialogContainer<InstallationDescriptor, InstallationError, JComponent>	container = 
 													new JDialogContainer<InstallationDescriptor, InstallationError, JComponent>(localizer
@@ -122,6 +147,16 @@ public class InstallationWizard {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	private static void storeInstallationState(final InstallationDescriptor desc, final SubstitutableProperties props) {
+		final ReflectedMapWrapper	wrapper = new ReflectedMapWrapper(desc);	// Quick deserialization
+		
+		for ( Entry<String, Object> item : wrapper.entrySet()) {
+			props.put(item.getKey(), wrapper.getValue(item.getKey()));
+		}
+		props.put(LAST_STATE_CONTENT_TYPE, LAST_STATE_CONTENT_TYPE_AWAITED);
+	}
+
 	
 	
 	private static class ApplicationArgParser extends ArgParser {

@@ -15,11 +15,12 @@ import javax.swing.JRadioButton;
 
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.basic.interfaces.ModuleAccessor;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 
-public class RadioButtonSelector extends JPanel implements LocaleChangeListener {
+public class RadioButtonSelector extends JPanel implements LocaleChangeListener, ModuleAccessor {
 	private static final long serialVersionUID = 1L;
 
 	private final Localizer			localizer;
@@ -129,6 +130,13 @@ public class RadioButtonSelector extends JPanel implements LocaleChangeListener 
 		return -1;
 	}
 
+	@Override
+	public void allowUnnamedModuleAccess(final Module... unnamedModules) {
+		for (Module item : unnamedModules) {
+			this.getClass().getModule().addExports(this.getClass().getPackageName(),item);
+		}
+	}
+	
 	private void buildButtons() {
 		setLayout(new GridLayout(buttons.length, 1));
 		
