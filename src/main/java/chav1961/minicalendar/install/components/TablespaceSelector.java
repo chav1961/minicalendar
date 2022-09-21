@@ -24,31 +24,32 @@ import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.sql.JDBCUtils;
 import chav1961.purelib.ui.swing.JFileFieldWithMeta;
+import chav1961.purelib.ui.swing.JTextFieldWithMeta;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.interfaces.JComponentInterface;
 import chav1961.purelib.ui.swing.interfaces.JComponentMonitor;
 import chav1961.purelib.ui.swing.interfaces.JComponentMonitor.MonitorEvent;
 
-public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, ModuleAccessor {
+public class TablespaceSelector extends JPanel implements LocaleChangeListener, ModuleAccessor {
 	private static final long 			serialVersionUID = 1L;
-	private static final String			KEY_USE_INTERNAL = "JdbcDriverSelector.button.useinternal";
-	private static final String			KEY_SELECT = "JdbcDriverSelector.button.selected";
-	private static final String			KEY_TOOLTIP = "JdbcDriverSelector.button.selected.tooptip";
-	private static final String			KEY_HELP = "JdbcDriverSelector.button.selected.help";
+	private static final String			KEY_USE_COMMON = "TablespaceSelector.button.usecommon";
+	private static final String			KEY_SELECT = "TablespaceSelector.button.dedicated";
+	private static final String			KEY_TOOLTIP = "TablespaceSelector.button.dedicated.tooltip";
+	private static final String			KEY_HELP = "TablespaceSelector.button.dedicated.help";
 
 	private final Localizer				localizer;
-	private final ContentNodeMetadata	fileMeta;
+	private final ContentNodeMetadata	tablespaceMeta;
 	private final ButtonGroup			group = new ButtonGroup();
-	private final JRadioButton			internal = new JRadioButton();
-	private final JRadioButton			selected = new JRadioButton();
-	private final JLabel				internalLabel = new JLabel();
-	private final JLabel				selectedLabel = new JLabel();
-	private final JFileFieldWithMeta	fileField;
+	private final JRadioButton			common = new JRadioButton();
+	private final JRadioButton			dedicated = new JRadioButton();
+	private final JLabel				commonLabel = new JLabel();
+	private final JLabel				dedicatedLabel = new JLabel();
+	private final JTextFieldWithMeta	tablespaceField;
 	
-	private File						currentFile = new File("./"); 
+	private String						currentTablespace = "public"; 
 	private boolean 					requestSelected = false;
 	
-	public JdbcDriverSelector(final Localizer localizer) {
+	public TablespaceSelector(final Localizer localizer) {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
 		}
@@ -56,37 +57,18 @@ public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, 
 			final URI	localizerUri = URI.create(Localizer.LOCALIZER_SCHEME+":xml:"+localizer.getLocalizerId());
 			
 			this.localizer = localizer;
-			this.fileMeta = new MutableContentNodeMetadata("file", File.class, "file", localizerUri, KEY_SELECT, KEY_TOOLTIP, KEY_HELP, new FieldFormat(File.class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
+			this.tablespaceMeta = new MutableContentNodeMetadata("tablespace", String.class, "tablespace", localizerUri, KEY_SELECT, KEY_TOOLTIP, KEY_HELP, new FieldFormat(String.class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
 			try{
-				this.fileField = (JFileFieldWithMeta)SwingUtils.prepareRenderer(fileMeta, localizer, FieldFormat.ContentType.FileContent, new JComponentMonitor() {
+				this.tablespaceField = (JTextFieldWithMeta)SwingUtils.prepareRenderer(tablespaceMeta, localizer, FieldFormat.ContentType.StringContent, new JComponentMonitor() {
 												@Override
 												public boolean process(MonitorEvent event, ContentNodeMetadata metadata, JComponentInterface component, Object... parameters) throws ContentException {
 													switch (event) {
 														case Loading	:
-															component.assignValueToComponent(currentFile);
+															component.assignValueToComponent(currentTablespace);
 															break;
 														case Validation	:
-															final File	temp = (File)component.getChangedValueFromComponent();
-															
-															if (!temp.exists()) {
-																SwingUtils.getNearestLogger(JdbcDriverSelector.this).message(Severity.warning, "File is not exists");
-																return false;
-															}
-															else if (temp.isDirectory()) {
-																SwingUtils.getNearestLogger(JdbcDriverSelector.this).message(Severity.warning, "Entity must be a file, not a directory");
-																return false;
-															}
-															else if (!temp.canRead()) {
-																SwingUtils.getNearestLogger(JdbcDriverSelector.this).message(Severity.warning, "File is not accessible for you due to security restrictions");
-																return false;
-															}
-															else if (!JDBCUtils.isJDBCDriverValid(temp, SwingUtils.getNearestLogger(JdbcDriverSelector.this))) {
-																return false;
-															}
-															else {
-																currentFile = temp; 
-																return true;
-															}
+															currentTablespace = ((String)component.getChangedValueFromComponent()).trim();
+															return true;
 														default:
 															break;
 													
@@ -99,8 +81,8 @@ public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, 
 			}
 			
 			buildScreen();
-			internal.addActionListener((e)->setRequestSelected(false));
-			selected.addActionListener((e)->setRequestSelected(true));
+			common.addActionListener((e)->setRequestSelected(false));
+			dedicated.addActionListener((e)->setRequestSelected(true));
 			setRequestSelected(false);
 			fillLocalizedStrings();
 		}
@@ -117,25 +99,25 @@ public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, 
 	
 	public void setRequestSelected(final boolean request) {
 		if (requestSelected = request) {
-			group.setSelected(internal.getModel(), true);
-			fileField.setEnabled(true);
+			group.setSelected(common.getModel(), true);
+			tablespaceField.setEnabled(true);
 		}
 		else {
-			group.setSelected(selected.getModel(), true);
-			fileField.setEnabled(false);
+			group.setSelected(dedicated.getModel(), true);
+			tablespaceField.setEnabled(false);
 		}
 	}
 
-	public File getCurrentFile() {
-		return currentFile;
+	public String getCurrentTablespace() {
+		return currentTablespace;
 	}
 	
-	public void setCurrentFile(final File newFile) {
-		if (newFile == null) {
-			throw new NullPointerException("File to set can't be null");
+	public void setCurrentTablespace(final String newTablespace) {
+		if (newTablespace == null || newTablespace.trim().isEmpty()) {
+			throw new IllegalArgumentException("Tablespace to set can't be null or empty");
 		}
 		else {
-			this.currentFile = newFile;
+			this.currentTablespace = newTablespace;
 		}
 	}
 	
@@ -151,23 +133,22 @@ public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, 
 		final JPanel	bottomPanel = new JPanel(new BorderLayout(5, 5));
 		final JPanel	selectPanel = new JPanel(new BorderLayout(5, 5));
 
-		group.add(internal);
-		group.add(selected);
+		group.add(common);
+		group.add(dedicated);
 		
-		selectPanel.add(selectedLabel, BorderLayout.WEST);
-		selectPanel.add(fileField, BorderLayout.CENTER);
-		bottomPanel.add(selected, BorderLayout.WEST);
+		selectPanel.add(dedicatedLabel, BorderLayout.WEST);
+		selectPanel.add(tablespaceField, BorderLayout.CENTER);
+		bottomPanel.add(dedicated, BorderLayout.WEST);
 		bottomPanel.add(selectPanel, BorderLayout.CENTER);
-		topPanel.add(internal, BorderLayout.WEST);
-		topPanel.add(internalLabel, BorderLayout.CENTER);
+		topPanel.add(common, BorderLayout.WEST);
+		topPanel.add(commonLabel, BorderLayout.CENTER);
 		setLayout(new GridLayout(2, 1, 5, 5));
 		add(topPanel);
 		add(bottomPanel);
 	}
 
-	
 	private void fillLocalizedStrings() {
-		internalLabel.setText(localizer.getValue(KEY_USE_INTERNAL));
-		selectedLabel.setText(localizer.getValue(KEY_SELECT));
+		commonLabel.setText(localizer.getValue(KEY_USE_COMMON));
+		dedicatedLabel.setText(localizer.getValue(KEY_SELECT));
 	}
 }

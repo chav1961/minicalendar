@@ -258,6 +258,9 @@
 		<key name="installation.step3.caption">Caption 1</key>
 		<key name="installation.step3.description">Description 1</key>
 		<key name="installation.step3.help">Help 1</key>
+		<key name="installation.step3.JdbcPanel.driver.border">driver</key>
+		<key name="installation.step3.JdbcPanel.connstring.border">conn</key>
+		<key name="installation.step3.JdbcPanel.button.text">Test connection parameters</key>
 		
 		<key name="installation.step4.caption">Caption 1</key>
 		<key name="installation.step4.description">Description 1</key>
@@ -316,6 +319,23 @@
 		<key name="WorkingDirectorySelector.file.space.root">Root</key>
 		<key name="WorkingDirectorySelector.file.space.total">Total</key>
 		<key name="WorkingDirectorySelector.file.space.available">Available</key>
+
+<!-- JdbcDriverSelector class localization: --> 
+		<key name="JdbcDriverSelector.button.useinternal">Корень ФС</key>
+		<key name="JdbcDriverSelector.button.selected">Корень ФС</key>
+		<key name="JdbcDriverSelector.button.selected.tooptip">Корень ФС</key>
+		<key name="JdbcDriverSelector.button.selected.help">Корень ФС</key>
+
+<!-- ConnectionStringSelector class localization: --> 
+		<key name="ConnectionStringSelector.connstring.label">Корень ФС</key>
+		<key name="ConnectionStringSelector.connstring.tooltip">Корень ФС</key>
+		<key name="ConnectionStringSelector.connstring.help">Корень ФС</key>
+		<key name="ConnectionStringSelector.user.label">Корень ФС</key>
+		<key name="ConnectionStringSelector.user.tooltip">Корень ФС</key>
+		<key name="ConnectionStringSelector.user.help">Корень ФС</key>
+		<key name="ConnectionStringSelector.password.label">Корень ФС</key>
+		<key name="ConnectionStringSelector.password.tooltip">Корень ФС</key>
+		<key name="ConnectionStringSelector.password.help">Корень ФС</key>
 		
 	</lang>
 	<lang name="ru">
@@ -566,16 +586,18 @@
 		<key name="installation.step2.caption">Папка для приложения: </key>
 		<key name="installation.step2.description">Выбор папки для установки приложения</key>
 		<key name="installation.step2.help">&lt;p&gt;Выберите папку, куда будут скопированы все необходимые для работы приложения файлы. Папка может находиться на любом диске вашего компьютера, но на диске должно быть достаточно места для установки. Если выбрана существующая папка, все ее содержимое будет удалено в процессе установки. Если вы указали несуществующую папку, она будет вновь создана.&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Выберите папку для установки:&lt;/p&gt;&lt;&lt;br/&gt;</key>
-		
 		<key name="installation.step2.validation.notexists">Папка [%1$s] не существует</key>
 		<key name="installation.step2.validation.notaccessible">Для папки [%1$s] у вас нет прав доступа на запись</key>
 		<key name="installation.step2.validation.notadirectory">Указана не папка, а файл [%1$s] !</key>
 		<key name="installation.step2.confirm.title">Очистка папки</key>
 		<key name="installation.step2.confirm.message">&lt;p&gt;Папка [%1$s] в данный момент не пуста. Все ее содержимое будет удалено в процессе установки!&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Хотите продолжить?&lt;/p&gt;</key>
 		
-		<key name="installation.step3.caption">Выбор режима</key>
-		<key name="installation.step3.description">Выбор режима работы:</key>
-		<key name="installation.step3.help">Режим работы определяет, что именно будет делать инсталлятор. Он может установить ваше приложение на "чистый" компьютер, может удалить его с компьютера, а может обновить установленное у вас программное обеспечение.\nВыберите, что именно вы желаете выполнить:"</key>
+		<key name="installation.step3.caption">Соединение с БД:</key>
+		<key name="installation.step3.description">Соединение с БД:</key>
+		<key name="installation.step3.help">Соединение с БД:</key>
+		<key name="installation.step3.JdbcPanel.driver.border">JDBC-драйвер для доступа к БД:</key>
+		<key name="installation.step3.JdbcPanel.connstring.border">Параметры соединения с БД:</key>
+		<key name="installation.step3.JdbcPanel.button.text">Проверить параметры соединения с БД</key>
 		
 		<key name="installation.step4.caption">Caption 1</key>
 		<key name="installation.step4.description">Description 1</key>
@@ -634,6 +656,23 @@
 		<key name="WorkingDirectorySelector.file.space.root">Корень ФС</key>
 		<key name="WorkingDirectorySelector.file.space.total">Всего, МБайт</key>
 		<key name="WorkingDirectorySelector.file.space.available">Доступно, МБайт</key>
+
+<!-- Локализация класса JdbcDriverSelector: --> 
+		<key name="JdbcDriverSelector.button.useinternal">Использовать драйвер из комплекта поставки</key>
+		<key name="JdbcDriverSelector.button.selected">Использовать драйвер из комплекта поставки</key>
+		<key name="JdbcDriverSelector.button.selected.tooptip">Выбрать</key>
+		<key name="JdbcDriverSelector.button.selected.help">Выбрать</key>
+
+<!-- Локализация класса ConnectionStringSelector: --> 
+		<key name="ConnectionStringSelector.connstring.label">Строка соединения</key>
+		<key name="ConnectionStringSelector.connstring.tooltip">Строка соединения</key>
+		<key name="ConnectionStringSelector.connstring.help">Строка соединения</key>
+		<key name="ConnectionStringSelector.user.label">Администратор БД</key>
+		<key name="ConnectionStringSelector.user.tooltip">Администратор БД</key>
+		<key name="ConnectionStringSelector.user.help">Администратор БД</key>
+		<key name="ConnectionStringSelector.password.label">Пароль</key>
+		<key name="ConnectionStringSelector.password.tooltip">Пароль</key>
+		<key name="ConnectionStringSelector.password.help">Пароль</key>
 		
 	</lang>	
 </localization>

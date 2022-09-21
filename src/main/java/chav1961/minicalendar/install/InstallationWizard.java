@@ -106,7 +106,8 @@ public class InstallationWizard {
 																, (JFrame)null
 																, desc
 																, ep
-																, new Step1(localizer), new Step2(localizer), new Step3(), new Step4(), new Step5()
+																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource("testOK.png"))
+																, new Step4(localizer, InstallationWizard.class.getResource("testOK.png")), new Step5()
 																, new Step6(), new Step7(), new Step8(), new Step9(), new Step10()
 																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15());
 				

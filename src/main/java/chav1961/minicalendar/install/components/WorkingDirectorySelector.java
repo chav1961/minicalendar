@@ -73,17 +73,18 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 															component.assignValueToComponent(currentFile);
 															break;
 														case Validation	:
-															currentFile = (File)component.getChangedValueFromComponent();
+															final File	temp = (File)component.getChangedValueFromComponent();
 															
-															if (currentFile.isFile()) {
+															if (temp.isFile()) {
 																SwingUtils.getNearestLogger(WorkingDirectorySelector.this).message(Severity.warning, "Entity must be a directory, not a file");
 																return false;
 															}
-															else if (!currentFile.canRead() || !currentFile.canWrite()) {
+															else if (temp.exists() && (!temp.canRead() || !temp.canWrite())) {
 																SwingUtils.getNearestLogger(WorkingDirectorySelector.this).message(Severity.warning, "Entity is not accessible for you due to security restrictions");
 																return false;
 															}
 															else {
+																currentFile = temp;
 																return true;
 															}
 														default:
@@ -120,7 +121,6 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 	public void localeChanged(Locale oldLocale, Locale newLocale) throws LocalizationException {
 		fillLocalizedStrings();
 	}
-
 	
 	public File getCurrentFile() {
 		return currentFile;
