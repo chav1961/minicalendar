@@ -2,6 +2,7 @@ package chav1961.minicalendar.install;
 
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,6 +14,8 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -130,18 +133,26 @@ public class Step3 implements WizardStep<InstallationDescriptor, InstallationErr
 				this.css = new ConnectionStringSelector(localizer);
 				
 				final JPanel	southPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+				final JPanel	centerPanel = new JPanel(new BorderLayout(5, 5));
+				final BoxLayout	layout = new BoxLayout(this, BoxLayout.Y_AXIS); 
 				
-				setLayout(new BorderLayout(5,5));
+				setLayout(layout);
 				
 				jds.setBorder(jdsBorder);
-				css.setBorder(cssBorder);
+				centerPanel.setBorder(cssBorder);
 				
+				centerPanel.add(css, BorderLayout.CENTER);
 				southPanel.add(test);
-				add(jds, BorderLayout.NORTH);
-				add(css, BorderLayout.CENTER);
-				add(southPanel, BorderLayout.SOUTH);
+				add(jds);
+				add(centerPanel);
+				add(southPanel);
+				add(Box.createVerticalStrut(1000));
 				
-				test.addActionListener((e)->testConnection());
+				test.addActionListener((e)->{
+					if (testConnection()) {
+						SwingUtils.getNearestLogger(JdbcPanel.this).message(Severity.info, "Success");
+					}
+				});
 				
 				fillLocalizedStrings();
 			}

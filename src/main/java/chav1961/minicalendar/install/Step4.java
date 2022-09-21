@@ -10,6 +10,8 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -96,12 +98,10 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 		panel.fillValuesTo(content);
 	}
 	
-		
-	
 	private static class DatabasePanel extends JPanel implements LocaleChangeListener {
 		private static final long 		serialVersionUID = 1L;
-		private static final String		KEY_TABLESPACE = "";
-		private static final String		KEY_USER_PASSWORD = "";
+		private static final String		KEY_TABLESPACE = "installation.step4.DatabasePanel.tablespace.border";
+		private static final String		KEY_USER_PASSWORD = "installation.step4.JdbcPanel.userPassword.border";
 		
 		private final Localizer					localizer;
 		private final URL						jdbcDriverURL;
@@ -120,12 +120,18 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 				this.tss = new TablespaceSelector(localizer);
 				this.ups = new UserAndPasswordSelector(localizer);
 				
-				setLayout(new BorderLayout(5, 5));
+				final JPanel	centerPanel = new JPanel(new BorderLayout(5, 5));
+				final BoxLayout	layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+
+				setLayout(layout);
 				
-				this.tss.setBorder(tssBorder);
-				this.ups.setBorder(upsBorder);
-				add(tss, BorderLayout.NORTH);
-				add(ups, BorderLayout.SOUTH);
+				tss.setBorder(tssBorder);
+				centerPanel.setBorder(upsBorder);
+				centerPanel.add(ups, BorderLayout.CENTER);
+				
+				add(tss);
+				add(centerPanel);
+				add(Box.createVerticalStrut(1000));
 				
 				fillLocalizedStrings();
 			}
@@ -182,8 +188,8 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 		}
 
 		private void fillLocalizedStrings() {
-			tssBorder.setTitle(KEY_TABLESPACE);
-			upsBorder.setTitle(KEY_USER_PASSWORD);
+			tssBorder.setTitle(localizer.getValue(KEY_TABLESPACE));
+			upsBorder.setTitle(localizer.getValue(KEY_USER_PASSWORD));
 		}
 	}
 }

@@ -117,11 +117,11 @@ public class JdbcDriverSelector extends JPanel implements LocaleChangeListener, 
 	
 	public void setRequestSelected(final boolean request) {
 		if (requestSelected = request) {
-			group.setSelected(internal.getModel(), true);
+			group.setSelected(selected.getModel(), true);
 			fileField.setEnabled(true);
 		}
 		else {
-			group.setSelected(selected.getModel(), true);
+			group.setSelected(internal.getModel(), true);
 			fileField.setEnabled(false);
 		}
 	}

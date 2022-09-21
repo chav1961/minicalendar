@@ -10,7 +10,7 @@ public class InstallationDescriptor implements ModuleAccessor {
 	public File			workDir = new File("./");
 	public boolean		jdbcSelected = false;
 	public File			jdbcDriver = new File("./");
-	public String		connString = "jdbc:postgres:/";
+	public String		connString = "jdbc:postgresql://localhost:5432/postgres";
 	public String		admin = "admin";
 	public char[]		adminPassword = new char[] {'?'};
 	public boolean		tableSpaceSelected = false;

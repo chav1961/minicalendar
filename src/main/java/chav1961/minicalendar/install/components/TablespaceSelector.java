@@ -99,11 +99,11 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 	
 	public void setRequestSelected(final boolean request) {
 		if (requestSelected = request) {
-			group.setSelected(common.getModel(), true);
+			group.setSelected(dedicated.getModel(), true);
 			tablespaceField.setEnabled(true);
 		}
 		else {
-			group.setSelected(dedicated.getModel(), true);
+			group.setSelected(common.getModel(), true);
 			tablespaceField.setEnabled(false);
 		}
 	}
@@ -113,8 +113,8 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 	}
 	
 	public void setCurrentTablespace(final String newTablespace) {
-		if (newTablespace == null || newTablespace.trim().isEmpty()) {
-			throw new IllegalArgumentException("Tablespace to set can't be null or empty");
+		if (newTablespace == null) {
+			throw new NullPointerException("Tablespace to set can't be null");
 		}
 		else {
 			this.currentTablespace = newTablespace;

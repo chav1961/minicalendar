@@ -265,6 +265,8 @@
 		<key name="installation.step4.caption">Caption 1</key>
 		<key name="installation.step4.description">Description 1</key>
 		<key name="installation.step4.help">Help 1</key>
+		<key name="installation.step4.DatabasePanel.tablespace.border">Табличное пространство</key>
+		<key name="installation.step4.JdbcPanel.userPassword.border">Пользователь-владелец данных</key>
 		
 		<key name="installation.step5.caption">Caption 1</key>
 		<key name="installation.step5.description">Description 1</key>
@@ -336,6 +338,20 @@
 		<key name="ConnectionStringSelector.password.label">Корень ФС</key>
 		<key name="ConnectionStringSelector.password.tooltip">Корень ФС</key>
 		<key name="ConnectionStringSelector.password.help">Корень ФС</key>
+
+<!-- TablespaceSelector class localization: --> 
+		<key name="TablespaceSelector.button.usecommon">Невыделенное</key>
+		<key name="TablespaceSelector.button.dedicated">Выделенное</key>
+		<key name="TablespaceSelector.button.dedicated.tooltip">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+		<key name="TablespaceSelector.button.dedicated.help">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+
+<!-- UserAndPasswordSelector class localization: --> 
+		<key name="UserAndPasswordSelector.user.label">Пользователь</key>
+		<key name="UserAndPasswordSelector.user.tooltip">Введите имя пользователя</key>
+		<key name="UserAndPasswordSelector.user.help">Введите имя пользователя</key>
+		<key name="UserAndPasswordSelector.password.label">Пароль</key>
+		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
+		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
 		
 	</lang>
 	<lang name="ru">
@@ -583,7 +599,7 @@
 		<key name="installation.step1.select.update">Обновить программное обеспечение</key>
 		<key name="installation.step1.select.remove">Удалить ранее установленное приложение</key>
 		
-		<key name="installation.step2.caption">Папка для приложения: </key>
+		<key name="installation.step2.caption">Папка для приложения</key>
 		<key name="installation.step2.description">Выбор папки для установки приложения</key>
 		<key name="installation.step2.help">&lt;p&gt;Выберите папку, куда будут скопированы все необходимые для работы приложения файлы. Папка может находиться на любом диске вашего компьютера, но на диске должно быть достаточно места для установки. Если выбрана существующая папка, все ее содержимое будет удалено в процессе установки. Если вы указали несуществующую папку, она будет вновь создана.&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Выберите папку для установки:&lt;/p&gt;&lt;&lt;br/&gt;</key>
 		<key name="installation.step2.validation.notexists">Папка [%1$s] не существует</key>
@@ -592,16 +608,18 @@
 		<key name="installation.step2.confirm.title">Очистка папки</key>
 		<key name="installation.step2.confirm.message">&lt;p&gt;Папка [%1$s] в данный момент не пуста. Все ее содержимое будет удалено в процессе установки!&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Хотите продолжить?&lt;/p&gt;</key>
 		
-		<key name="installation.step3.caption">Соединение с БД:</key>
-		<key name="installation.step3.description">Соединение с БД:</key>
-		<key name="installation.step3.help">Соединение с БД:</key>
+		<key name="installation.step3.caption">Соединение с БД</key>
+		<key name="installation.step3.description">Соединение с БД</key>
+		<key name="installation.step3.help">&lt;p&gt;Приложение хранит все свои данные в базе данных PostgreSQL. СУБД PostgreSQL должна быть предварительно установлена на ваш компьютер. Для доступа к ней из приложения необходим JDBC-драйвер. Один такой драйвер есть в инсталляторе, но вы можете выбрать вместо него свой.&lt;/p&gt;&lt;p&gt;Кроме выбора драйвера, для доступа к БД требуется указать строку соединения, а также имя и пароль пользователя-администратора БД (или любого пользователя, обладающего административными правами).&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Выберите драйвер и задайте параметры соединения:&lt;/p&gt;&lt;br/&gt;</key>
 		<key name="installation.step3.JdbcPanel.driver.border">JDBC-драйвер для доступа к БД:</key>
 		<key name="installation.step3.JdbcPanel.connstring.border">Параметры соединения с БД:</key>
-		<key name="installation.step3.JdbcPanel.button.text">Проверить параметры соединения с БД</key>
+		<key name="installation.step3.JdbcPanel.button.text">Тест соединения с БД</key>
 		
-		<key name="installation.step4.caption">Caption 1</key>
-		<key name="installation.step4.description">Description 1</key>
-		<key name="installation.step4.help">Help 1</key>
+		<key name="installation.step4.caption">Подготовка БД</key>
+		<key name="installation.step4.description">Подготовка БД</key>
+		<key name="installation.step4.help">&lt;p&gt;Для подготовки БД к хранению данных приложения в ней желательно создать для этого отдельное табличное пространство, а также определить пользователя-владельца данных. Если вам не требуется отдельное табличное пространство, можно его не создавать. Указывать в качестве владельца одного из уже существующих пользователей нельзя&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Определите табличное пространство и пользователя:&lt;/p&gt;&lt;br/&gt; </key>
+		<key name="installation.step4.DatabasePanel.tablespace.border">Табличное пространство</key>
+		<key name="installation.step4.JdbcPanel.userPassword.border">Пользователь-владелец данных</key>
 		
 		<key name="installation.step5.caption">Caption 1</key>
 		<key name="installation.step5.description">Description 1</key>
@@ -659,7 +677,7 @@
 
 <!-- Локализация класса JdbcDriverSelector: --> 
 		<key name="JdbcDriverSelector.button.useinternal">Использовать драйвер из комплекта поставки</key>
-		<key name="JdbcDriverSelector.button.selected">Использовать драйвер из комплекта поставки</key>
+		<key name="JdbcDriverSelector.button.selected">Выбрать</key>
 		<key name="JdbcDriverSelector.button.selected.tooptip">Выбрать</key>
 		<key name="JdbcDriverSelector.button.selected.help">Выбрать</key>
 
@@ -673,6 +691,20 @@
 		<key name="ConnectionStringSelector.password.label">Пароль</key>
 		<key name="ConnectionStringSelector.password.tooltip">Пароль</key>
 		<key name="ConnectionStringSelector.password.help">Пароль</key>
+		
+<!-- Локализация класса TablespaceSelector: --> 
+		<key name="TablespaceSelector.button.usecommon">Не использовать</key>
+		<key name="TablespaceSelector.button.dedicated">Использовать указанное</key>
+		<key name="TablespaceSelector.button.dedicated.tooltip">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+		<key name="TablespaceSelector.button.dedicated.help">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+		
+<!-- Локализация класса UserAndPasswordSelector: --> 
+		<key name="UserAndPasswordSelector.user.label">Пользователь</key>
+		<key name="UserAndPasswordSelector.user.tooltip">Введите имя пользователя</key>
+		<key name="UserAndPasswordSelector.user.help">Введите имя пользователя</key>
+		<key name="UserAndPasswordSelector.password.label">Пароль</key>
+		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
+		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
 		
 	</lang>	
 </localization>

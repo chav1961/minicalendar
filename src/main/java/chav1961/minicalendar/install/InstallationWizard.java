@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.JComponent;
@@ -43,6 +42,8 @@ public class InstallationWizard {
 
 	public static final String	KEY_CONFIRM_RESTORE_TITLE = "installer.confirm.restore.title";
 	public static final String	KEY_CONFIRM_RESTORE_MESSAGE = "installer.confirm.restore.message";
+
+	public static final String	JDBC_DRIVER_LOCATION = "/chav1961/minicalendar/database/postgresql-42.4.1.jar";
 	
 	
 	public static void main(final String[] args) {
@@ -106,11 +107,10 @@ public class InstallationWizard {
 																, (JFrame)null
 																, desc
 																, ep
-																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource("testOK.png"))
-																, new Step4(localizer, InstallationWizard.class.getResource("testOK.png")), new Step5()
+																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION))
+																, new Step4(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION)), new Step5()
 																, new Step6(), new Step7(), new Step8(), new Step9(), new Step10()
 																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15());
-				
 
 					container.showDialog();
 				}
