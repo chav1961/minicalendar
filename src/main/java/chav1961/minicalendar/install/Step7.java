@@ -45,6 +45,16 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 	}
 
 	@Override
+	public String getNextStep() {
+		if (!result) {
+			return Step16.class.getSimpleName();
+		}
+		else {
+			return null;
+		}
+	}
+	
+	@Override
 	public String getCaption() {
 		return KEY_CAPTION;
 	}

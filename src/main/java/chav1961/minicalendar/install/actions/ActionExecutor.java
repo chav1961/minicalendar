@@ -104,7 +104,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			throw new IllegalStateException("Attempt to start already started process");
 		}
 		else {
-			ar.set(new CountDownLatch(steps.length));
+			ar.set(new CountDownLatch(steps.length + 1));
 			t = new Thread(()->process());
 			t.setDaemon(true);
 			result.set(false);
@@ -194,7 +194,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			boolean	totalResult = true;
 			
 			SwingUtils.getNearestLogger(this).message(Severity.info, "Start process...");
-			while (ar.get().getCount() > 0 && !Thread.interrupted()) {
+			while (ar.get().getCount() > 1 && !Thread.interrupted()) {
 				fillState();
 				for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
 					if (item.getState() == State.AWAITING) {
@@ -231,8 +231,12 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 				item.unprepare();
 			}
 			result.set(totalResult);
+			ar.get().countDown();
 		} catch (Exception e) {
 			SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
+			for (int index = 0; index < steps.length; index++) {
+				ar.get().countDown();
+			}
 		}
 	}
 
