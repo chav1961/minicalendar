@@ -50,7 +50,7 @@ public class FirstAction implements ActionInterface<InstallationDescriptor>{
 	public boolean execute(final InstallationDescriptor content, final Object... parameters) throws Exception {
 		pi.start(KEY_FIRSTACTION_STEP,10);
 		for (int index = 0; index < 10; index++) {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 			pi.processed(index);
 		}
 		pi.end();

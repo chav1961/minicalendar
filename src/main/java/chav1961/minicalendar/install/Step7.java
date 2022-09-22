@@ -68,7 +68,7 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 	public void beforeShow(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
 		ax.setInstallationDescriptor(content);
 		try{ax.start();
-//			result = ax.waitCompletion();
+			result = ax.waitCompletion();
 		} catch (Exception e) {
 			result = false;
 			throw new FlowException(e);

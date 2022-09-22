@@ -1,5 +1,6 @@
 package chav1961.minicalendar.install.actions;
 
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -184,14 +185,18 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 		// TODO Auto-generated method stub
 		try{
 			SwingUtils.getNearestLogger(this).message(Severity.info, "Preparation...");
+			fillState();
+			
 			for (ActionInterface<InstallationDescriptor> item : steps) {
-					item.prepare();
+				item.prepare();
 			}
 			
 			boolean	totalResult = true;
 			
+			SwingUtils.getNearestLogger(this).message(Severity.info, "Start process...");
 			while (ar.get().getCount() > 0 && !Thread.interrupted()) {
-				for (ActionInterface<InstallationDescriptor> item : steps) {
+				fillState();
+				for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
 					if (item.getState() == State.AWAITING) {
 						if (allAncestorsCompleted(item.getAncestors())) {
 							try{
@@ -223,7 +228,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			
 			SwingUtils.getNearestLogger(this).message(Severity.info, "Unprepare...");
 			for (ActionInterface<InstallationDescriptor> item : steps) {
-					item.unprepare();
+				item.unprepare();
 			}
 			result.set(totalResult);
 		} catch (Exception e) {
@@ -301,6 +306,12 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			add(states[index], LabelledLayout.CONTENT_AREA);
 		}
 	}
+
+	private void fillState() {
+		for (int index = 0; index < steps.length; index++) {
+			states[index].state.setIcon(steps[index].getState().getStateIcon());
+		}
+	}
 	
 	private void fillLocalizedStrings() {
 		nameLabel.setText(localizer.getValue(KEY_NAME_LABEL));
@@ -312,11 +323,17 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 
 	
 	private final class StateAndProgress extends JPanel {
+		private static final long serialVersionUID = 1L;
+		
 		private JLabel			state = new JLabel();
 		private JProgressBar	progress;
 		
-		private StateAndProgress(final ProgressIndicator progress) {
-			this.progress = (JProgressBar)progress;
+		private StateAndProgress(final ProgressIndicator progressIndicator) {
+			super(new BorderLayout(5, 5));
+			
+			this.progress = (JProgressBar)progressIndicator;
+			add(state, BorderLayout.WEST);
+			add(progress, BorderLayout.CENTER);
 		}
 	}
 }
