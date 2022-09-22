@@ -32,6 +32,11 @@ public class Step16 implements WizardStep<InstallationDescriptor, InstallationEr
 	}
 
 	@Override
+	public String getPrevStep() {
+		return Step1.class.getSimpleName();
+	}
+	
+	@Override
 	public String getCaption() {
 		return KEY_CAPTION;
 	}
@@ -53,19 +58,14 @@ public class Step16 implements WizardStep<InstallationDescriptor, InstallationEr
 
 	@Override
 	public void beforeShow(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public boolean validate(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void afterShow(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
-		// TODO Auto-generated method stub
-		
 	}
 }

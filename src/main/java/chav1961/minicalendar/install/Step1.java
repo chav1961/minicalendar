@@ -42,7 +42,7 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 			case 0 :
 				return Step2.class.getSimpleName();
 			case 1 :
-				return Step11.class.getSimpleName();
+				return Step12.class.getSimpleName();
 			case 2 :
 				return Step8.class.getSimpleName();
 			default :

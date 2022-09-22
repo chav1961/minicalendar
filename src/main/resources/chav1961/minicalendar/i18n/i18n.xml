@@ -379,6 +379,9 @@
 		<key name="ActionExecutor.table.name">Шаг установки</key>
 		<key name="ActionExecutor.table.state">Состояние</key>
 
+<!-- StartReviewSelector: class localization: --> 
+		<key name="StartReviewSelector.startreview.check">Состояние</key>
+
 		<key name="testaction">MZINANA</key>
 		
 	</lang>
@@ -649,21 +652,21 @@
 		<key name="installation.step4.DatabasePanel.tablespace.border">Табличное пространство</key>
 		<key name="installation.step4.JdbcPanel.userPassword.border">Пользователь-владелец данных</key>
 		
-		<key name="installation.step5.caption">Caption 1</key>
-		<key name="installation.step5.description">Description 1</key>
-		<key name="installation.step5.help">Help 1</key>
+		<key name="installation.step5.caption">Подготовка сервиса</key>
+		<key name="installation.step5.description">Подготовка сервиса приложения</key>
+		<key name="installation.step5.help">&lt;p&gt;Приложение в операционной системе устанавливается в виде т.н. сервиса (службы). Его запуском и поддержанием в работоспособном состоянии будет заниматься сама операционная система. У такого сервиса в системе должно быть собственное уникальное имя. Нет особых причин менять предложенное вам имя, если только вы не ставите еще один экземпляр приложения.&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Выберите имя сервиса:&lt;/p&gt;</key>
 		
-		<key name="installation.step6.caption">Caption 1</key>
-		<key name="installation.step6.description">Description 1</key>
-		<key name="installation.step6.help">Help 1</key>
+		<key name="installation.step6.caption">Готово к установке</key>
+		<key name="installation.step6.description">Все готово к установке</key>
+		<key name="installation.step6.help">&lt;p&gt;Итак, все необходимые параметры для установки заданы. Проверьте их еще раз, и, если все определено верно, нажмите кнопку 'Далее &gt;'. Для исправления каких-либо параметров просто вернитесь назад к нужной форме.&lt;/p&gt;&lt;br/&gt;</key>
 		
-		<key name="installation.step7.caption">Caption 1</key>
-		<key name="installation.step7.description">Description 1</key>
-		<key name="installation.step7.help">Help 1</key>
+		<key name="installation.step7.caption">Установка...</key>
+		<key name="installation.step7.description">Идет установка...</key>
+		<key name="installation.step7.help">&lt;p&gt;Идет установка приложения на ваш компьюьер. Наберитесь терпения и дождитесь ее окончания. Если нужно срочно прервать установку, нажмите кнопку 'Отмена'...&lt;/p&gt;&lt;br/&gt;</key>
 		
-		<key name="installation.step8.caption">Caption 1</key>
-		<key name="installation.step8.description">Description 1</key>
-		<key name="installation.step8.help">Help 1</key>
+		<key name="installation.step8.caption">Установка завершена</key>
+		<key name="installation.step8.description">Установка приложения завершена</key>
+		<key name="installation.step8.help">&lt;p&gt;&lt;b&gt;Поздравляем!&lt;/b&gt; Приложение успешно установлено на ваш компьютер и уже готов к работе. Вы увидите его в значках панели управления. Для работы с ним достаточно щелкнуть по этому значку.&lt;p/&gt;&lt;br/&gt;&lt;p&gt;Если вас интересует краткий обзор возможностей этого приложения, вы можете прямо сейчас просмотреть их описание.&lt;p&gt;&lt;br/&gt;</key>
 		
 		<key name="installation.step9.caption">Caption 1</key>
 		<key name="installation.step9.description">Description 1</key>
@@ -693,9 +696,9 @@
 		<key name="installation.step15.description">Description 1</key>
 		<key name="installation.step15.help">Help 1</key>
 
-		<key name="installation.step16.caption">Caption 1</key>
-		<key name="installation.step16.description">Description 1</key>
-		<key name="installation.step16.help">Help 1</key>
+		<key name="installation.step16.caption">Ошибка работы</key>
+		<key name="installation.step16.description">Возникли ошибки при работе...</key>
+		<key name="installation.step16.help">&lt;p&gt;На предыдущем шаге работы возникли непредвиденные ошибки.&lt;/p&gt;&lt;br/&gt;&lt;p&gt;Просмотр журнала ошибок:&lt;/p&gt;&lt;br/&gt;</key>
 
 <!-- Локализация класса WorkingDirectorySelector: --> 
 		<key name="WorkingDirectorySelector.file.label">Выберите папку</key>
@@ -760,6 +763,10 @@
 		<key name="ActionExecutor.table.name">Шаг установки</key>
 		<key name="ActionExecutor.table.state">Состояние</key>
 
+<!-- Локализация класса StartReviewSelector: --> 
+		<key name="StartReviewSelector.startreview.check">Запустить краткий обзор</key>
+		
+		
 		<key name="testaction">MZINANA</key>
 		
 	</lang>	

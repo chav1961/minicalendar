@@ -1,10 +1,13 @@
 package chav1961.minicalendar.install.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.File;
 import java.net.URI;
 import java.util.Locale;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -46,8 +49,8 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 	private final JLabel				fileLabel = new JLabel();
 	private final JFileFieldWithMeta	fileField;
 	private final TitledBorder			spaceBorder = new TitledBorder("");
-	private final JTable				space;
-	private final JLabel				requestLabel = new JLabel();
+	private final JTable				space = new JTable();
+	private final JLabel				requestLabel = new JLabel("", JLabel.RIGHT);
 	private File						currentFile = new File("./");
 	
 	public WorkingDirectorySelector(final Localizer localizer, final int sizeApprox) {
@@ -97,24 +100,34 @@ public class WorkingDirectorySelector extends JPanel implements LocaleChangeList
 			} catch (SyntaxException e) {
 				throw new IllegalArgumentException(e); 
 			}
-			setLayout(new BorderLayout(5,5));
-			
-			final JPanel 	panel = new JPanel(new BorderLayout(5,5));
-			
-			panel.add(fileLabel, BorderLayout.WEST);
-			panel.add(fileField, BorderLayout.CENTER);
-			
-			this.space = new JTable(new SpaceTableModel(localizer));
-			final JScrollPane	pane = new JScrollPane(this.space); 
-			
-			pane.setFocusable(false);
-			pane.setBorder(spaceBorder);
-			
-			add(panel, BorderLayout.NORTH);
-			add(pane, BorderLayout.CENTER);
-			add(requestLabel, BorderLayout.SOUTH);
+			space.setModel(new SpaceTableModel(localizer));
+			buildScreen();
 			fillLocalizedStrings();
 		}
+	}
+
+	private void buildScreen() {
+		final BoxLayout	layout = new BoxLayout(this, BoxLayout.PAGE_AXIS);
+		
+		setLayout(layout);
+		
+		final JPanel 	panel = new JPanel(new BorderLayout(5,5));
+		
+		panel.add(fileLabel, BorderLayout.WEST);
+		panel.add(fileField, BorderLayout.CENTER);
+		
+		final JScrollPane	pane = new JScrollPane(this.space); 
+		
+		pane.setFocusable(false);
+		pane.setBorder(spaceBorder);
+		pane.setMinimumSize(new Dimension(450,150));
+		
+		add(panel);
+		add(Box.createRigidArea(new Dimension(5,5)));
+		add(pane);
+		add(Box.createRigidArea(new Dimension(15,15)));
+		add(requestLabel);
+		add(Box.createVerticalStrut(1000));
 	}
 
 	@Override

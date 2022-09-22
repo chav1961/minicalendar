@@ -8,9 +8,11 @@ import javax.swing.JLabel;
 import chav1961.minicalendar.install.actions.ActionExecutor;
 import chav1961.minicalendar.install.actions.FirstAction;
 import chav1961.purelib.basic.exceptions.FlowException;
+import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.interfaces.WizardStep;
+import chav1961.purelib.ui.swing.SwingUtils;
 
 /*
  * Create software and start service
@@ -83,7 +85,9 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 			result = false;
 			throw new FlowException(e);
 		} finally {
-			try{ax.stop();
+			try{if (ax.isStarted()) {
+					ax.stop();
+				}
 			} catch (Exception e) {
 				throw new FlowException(e);
 			}
@@ -97,5 +101,14 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public void afterShow(InstallationDescriptor content, Map<String, Object> temporary, ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
+	}
+	
+	@Override
+	public boolean onCancel() {
+		try{ax.stop();
+		} catch (Exception e) {
+			SwingUtils.getNearestLogger(ax).message(Severity.error, "INstallation cancelled");
+		}
+		return false;
 	}
 }
