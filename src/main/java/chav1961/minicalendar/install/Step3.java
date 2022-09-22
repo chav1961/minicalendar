@@ -144,7 +144,9 @@ public class Step3 implements WizardStep<InstallationDescriptor, InstallationErr
 				centerPanel.add(css, BorderLayout.CENTER);
 				southPanel.add(test);
 				add(jds);
+				add(Box.createRigidArea(new Dimension(5,5)));
 				add(centerPanel);
+				add(Box.createRigidArea(new Dimension(5,5)));
 				add(southPanel);
 				add(Box.createVerticalStrut(1000));
 				
@@ -160,22 +162,27 @@ public class Step3 implements WizardStep<InstallationDescriptor, InstallationErr
 
 		public boolean testConnection() {
 			if (!jds.isRequestSelected()) {
-				try{final File	temp = File.createTempFile("jdbc", ".jar");
-				
-					try{
-						try(final InputStream	is = jdbcDriverURL.openStream();
-							final OutputStream	os = new FileOutputStream(temp)) {
-							
-							Utils.copyStream(is, os);
-						}
-						return testConnection(temp);
-					} finally {
-						temp.delete();
-					}
+				try{return testConnection(InstallUtils.extractDriverFile(jdbcDriverURL));
 				} catch (IOException e) {
 					SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
 					return false;
 				}
+//				try{final File	temp = File.createTempFile("jdbc", ".jar");
+//				
+//					try{
+//						try(final InputStream	is = jdbcDriverURL.openStream();
+//							final OutputStream	os = new FileOutputStream(temp)) {
+//							
+//							Utils.copyStream(is, os);
+//						}
+//						return testConnection(temp);
+//					} finally {
+//						temp.delete();
+//					}
+//				} catch (IOException e) {
+//					SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
+//					return false;
+//				}
 			}
 			else {
 				return testConnection(jds.getCurrentFile());

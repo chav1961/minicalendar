@@ -9,8 +9,8 @@ import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.interfaces.WizardStep;
 
-/*
- * Remove branch: Confirm removing and ask about saving user content
+/*  
+ * Install branch: Complete and start browser
  */
 public class Step8 implements WizardStep<InstallationDescriptor, InstallationError, JComponent> {
 	public static final String	KEY_CAPTION = "installation.step8.caption";
@@ -24,7 +24,7 @@ public class Step8 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public StepType getStepType() {
-		return StepType.ORDINAL;
+		return StepType.TERM_SUCCESS;
 	}
 
 	@Override

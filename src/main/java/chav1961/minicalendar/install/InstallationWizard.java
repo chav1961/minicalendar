@@ -108,9 +108,9 @@ public class InstallationWizard {
 																, desc
 																, ep
 																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION))
-																, new Step4(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION)), new Step5()
-																, new Step6(), new Step7(), new Step8(), new Step9(), new Step10()
-																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15());
+																, new Step4(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION)), new Step5(localizer)
+																, new Step6(localizer), new Step7(localizer), new Step8(), new Step9(), new Step10()
+																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15(), new Step16());
 
 					container.showDialog();
 				}

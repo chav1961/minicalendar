@@ -17,6 +17,7 @@ public class InstallationDescriptor implements ModuleAccessor {
 	public String		tableSpace = "";
 	public String		user = "user";
 	public char[]		userPassword = new char[] {'?'};
+	public String		serviceName = "minicalendar";
 
 	@Override
 	public void allowUnnamedModuleAccess(final Module... unnamedModules) {

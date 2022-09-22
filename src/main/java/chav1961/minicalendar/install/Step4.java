@@ -1,12 +1,23 @@
 package chav1961.minicalendar.install;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -19,7 +30,9 @@ import javax.swing.border.TitledBorder;
 
 import chav1961.minicalendar.install.components.TablespaceSelector;
 import chav1961.minicalendar.install.components.UserAndPasswordSelector;
+import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.Utils;
+import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
@@ -39,6 +52,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 	public static final String	KEY_HELP = "installation.step4.help";
 
 	private final DatabasePanel	panel;
+	private final URL			jdbcDriverURL;
 	
 	public Step4(final Localizer localizer, final URL jdbcDriverURL) {
 		if (localizer == null) {
@@ -49,6 +63,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 		}
 		else {
 			this.panel = new DatabasePanel(localizer, jdbcDriverURL);
+			this.jdbcDriverURL = jdbcDriverURL;
 		}
 	}
 	
@@ -84,13 +99,32 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public void beforeShow(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
-		panel.getValuesFrom(content);
+		final List<String>		tableSpaces = new ArrayList<>();
+		
+		try(final SimpleURLClassLoader	scl = new SimpleURLClassLoader(new URL[] {jdbcDriverURL})) {
+			final File					driverFile = content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverURL);
+			final Driver				driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
+			
+			try(final Connection		conn = JDBCUtils.getConnection(driver, URI.create(content.connString), content.admin, content.adminPassword);
+				final Statement			stmt = conn.createStatement();
+				final ResultSet			rs = stmt.executeQuery("select spcname from pg_tablespace")) {
+				
+				while (rs.next()) {
+					tableSpaces.add(rs.getString(1));
+				}
+			}
+		} catch (SQLException e) {
+		} catch (IOException | ContentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		panel.getValuesFrom(content, tableSpaces);
 	}
 
 	@Override
 	public boolean validate(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
-		// TODO Auto-generated method stub
-		return false;
+		return panel.testSettings(content);
 	}
 
 	@Override
@@ -130,6 +164,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 				centerPanel.add(ups, BorderLayout.CENTER);
 				
 				add(tss);
+				add(Box.createRigidArea(new Dimension(5,5)));
 				add(centerPanel);
 				add(Box.createVerticalStrut(1000));
 				
@@ -144,7 +179,8 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 			fillLocalizedStrings();
 		}
 
-		public void getValuesFrom(final InstallationDescriptor desc) {
+		public void getValuesFrom(final InstallationDescriptor desc, final List<String> tableSpaces) {
+			tss.fillTableSpaces(tableSpaces);
 			tss.setRequestSelected(desc.tableSpaceSelected);
 			tss.setCurrentTablespace(desc.tableSpace);
 			ups.setUser(desc.user);
@@ -160,18 +196,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 		
 		public boolean testSettings(final InstallationDescriptor desc) {
 			if (!desc.jdbcSelected) {
-				try{final File	temp = File.createTempFile("jdbc", ".jar");
-					
-					try{
-						try(final InputStream	is = jdbcDriverURL.openStream();
-							final OutputStream	os = new FileOutputStream(temp)) {
-							
-							Utils.copyStream(is, os);
-						}
-						return testSettings(desc, temp);
-					} finally {
-						temp.delete();
-					}
+				try{return testSettings(desc, InstallUtils.extractDriverFile(jdbcDriverURL));
 				} catch (IOException e) {
 					SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
 					return false;
@@ -183,7 +208,25 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 		}
 		
 		private boolean testSettings(final InstallationDescriptor desc, final File jdbcDriver) {
-			// TODO Auto-generated method stub
+			try(final SimpleURLClassLoader	scl = new SimpleURLClassLoader(new URL[] {jdbcDriver.toURI().toURL()})) {
+				final Driver				driver = JDBCUtils.loadJdbcDriver(scl, jdbcDriver);
+				
+				try(final Connection		conn = JDBCUtils.getConnection(driver, URI.create(desc.connString), desc.admin, desc.adminPassword);
+					final PreparedStatement	stmt = conn.prepareStatement("select count(*) from pg_catalog.pg_user where usename = ?")) {
+					
+					stmt.setString(1, ups.getUser());
+					try(final ResultSet		rs = stmt.executeQuery()) {
+						if (rs.next() && rs.getInt(1) > 0) {
+							SwingUtils.getNearestLogger(this).message(Severity.warning, "User ["+ups.getUser()+"] exists");
+						}
+						else {
+							return true;
+						}
+					}
+				}
+			} catch (SQLException | IOException | ContentException e) {
+				SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
+			}
 			return false;
 		}
 

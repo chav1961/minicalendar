@@ -10,7 +10,7 @@ import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.interfaces.WizardStep;
 
 /*
- * Remove branch: Removing content
+ * Remove branch: Confirm removing and ask about saving user content
  */
 public class Step9 implements WizardStep<InstallationDescriptor, InstallationError, JComponent> {
 	public static final String	KEY_CAPTION = "installation.step9.caption";
@@ -24,7 +24,7 @@ public class Step9 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public StepType getStepType() {
-		return StepType.PROCESSING;
+		return StepType.ORDINAL;
 	}
 
 	@Override

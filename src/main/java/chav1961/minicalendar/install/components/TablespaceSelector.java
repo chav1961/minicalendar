@@ -4,9 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -38,13 +40,12 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 	private static final String			KEY_HELP = "TablespaceSelector.button.dedicated.help";
 
 	private final Localizer				localizer;
-	private final ContentNodeMetadata	tablespaceMeta;
 	private final ButtonGroup			group = new ButtonGroup();
 	private final JRadioButton			common = new JRadioButton();
 	private final JRadioButton			dedicated = new JRadioButton();
 	private final JLabel				commonLabel = new JLabel();
 	private final JLabel				dedicatedLabel = new JLabel();
-	private final JTextFieldWithMeta	tablespaceField;
+	private final JComboBox<String>		tablespaceField = new JComboBox<>();
 	
 	private String						currentTablespace = "public"; 
 	private boolean 					requestSelected = false;
@@ -57,28 +58,6 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 			final URI	localizerUri = URI.create(Localizer.LOCALIZER_SCHEME+":xml:"+localizer.getLocalizerId());
 			
 			this.localizer = localizer;
-			this.tablespaceMeta = new MutableContentNodeMetadata("tablespace", String.class, "tablespace", localizerUri, KEY_SELECT, KEY_TOOLTIP, KEY_HELP, new FieldFormat(String.class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
-			try{
-				this.tablespaceField = (JTextFieldWithMeta)SwingUtils.prepareRenderer(tablespaceMeta, localizer, FieldFormat.ContentType.StringContent, new JComponentMonitor() {
-												@Override
-												public boolean process(MonitorEvent event, ContentNodeMetadata metadata, JComponentInterface component, Object... parameters) throws ContentException {
-													switch (event) {
-														case Loading	:
-															component.assignValueToComponent(currentTablespace);
-															break;
-														case Validation	:
-															currentTablespace = ((String)component.getChangedValueFromComponent()).trim();
-															return true;
-														default:
-															break;
-													
-													}
-													return true;
-												}
-											});
-			} catch (SyntaxException e) {
-				throw new IllegalArgumentException(e); 
-			}
 			
 			buildScreen();
 			common.addActionListener((e)->setRequestSelected(false));
@@ -108,6 +87,18 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 		}
 	}
 
+	public void fillTableSpaces(final List<String> tableSpaces) {
+		if (tableSpaces == null) {
+			throw new NullPointerException("Tablespaces can't be null");
+		}
+		else {
+			tablespaceField.removeAllItems();
+			for (String item : tableSpaces) {
+				tablespaceField.addItem(item);
+			}
+		}
+	}
+	
 	public String getCurrentTablespace() {
 		return currentTablespace;
 	}
@@ -117,6 +108,7 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 			throw new NullPointerException("Tablespace to set can't be null");
 		}
 		else {
+			tablespaceField.setSelectedItem(newTablespace);
 			this.currentTablespace = newTablespace;
 		}
 	}

@@ -10,14 +10,14 @@ import chav1961.purelib.ui.interfaces.ErrorProcessing;
 import chav1961.purelib.ui.interfaces.WizardStep;
 
 /*
- * Update software: Ask server to update software from
+ * Error window
  */
-public class Step12 implements WizardStep<InstallationDescriptor, InstallationError, JComponent> {
-	public static final String	KEY_CAPTION = "installation.step12.caption";
-	public static final String	KEY_DESCRIPTION = "installation.step12.description";
-	public static final String	KEY_HELP = "installation.step12.help";
+public class Step16 implements WizardStep<InstallationDescriptor, InstallationError, JComponent> {
+	public static final String	KEY_CAPTION = "installation.step16.caption";
+	public static final String	KEY_DESCRIPTION = "installation.step16.description";
+	public static final String	KEY_HELP = "installation.step16.help";
 
-	public Step12() {
+	public Step16() {
 		
 	}
 	
@@ -28,7 +28,7 @@ public class Step12 implements WizardStep<InstallationDescriptor, InstallationEr
 
 	@Override
 	public StepType getStepType() {
-		return StepType.ORDINAL;
+		return StepType.TERM_FAILURE;
 	}
 
 	@Override

@@ -312,6 +312,10 @@
 		<key name="installation.step15.description">Description 1</key>
 		<key name="installation.step15.help">Help 1</key>
 		
+		<key name="installation.step16.caption">Caption 1</key>
+		<key name="installation.step16.description">Description 1</key>
+		<key name="installation.step16.help">Help 1</key>
+		
 <!-- WorkingDirectorySelector class localization: --> 
 		<key name="WorkingDirectorySelector.file.label">Label</key>
 		<key name="WorkingDirectorySelector.file.tooltip">Tooltip</key>
@@ -352,6 +356,30 @@
 		<key name="UserAndPasswordSelector.password.label">Пароль</key>
 		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
 		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
+
+<!-- ServiceNameSelector class localization: --> 
+		<key name="ServiceNameSelector.service.label">Имя сервиса</key>
+		<key name="ServiceNameSelector.service.tooltip">Имя сервиса</key>
+		<key name="ServiceNameSelector.service.help">Имя сервиса</key>
+
+<!-- ParametersTableModel class localization: --> 
+		<key name="ParametersTableModel.column.name">Параметр</key>
+		<key name="ParametersTableModel.column.value">Значение</key>
+		<key name="ParametersTableModel.row.workdir">Папка для установки</key>
+		<key name="ParametersTableModel.row.jdbcdriver">Драйвер JDBC</key>
+		<key name="ParametersTableModel.row.connstring">Строка соединения</key>
+		<key name="ParametersTableModel.row.admin">Администратор БД</key>
+		<key name="ParametersTableModel.row.user">Пользователь-владелец</key>
+		<key name="ParametersTableModel.row.tablespace">Табличное пространство</key>
+		<key name="ParametersTableModel.row.connstring">Имя сервиса</key>
+		<key name="ParametersTableModel.row.value.default">from installer</key>
+		<key name="ParametersTableModel.row.value.nottyped">non-dedicated</key>
+
+<!-- ActionExecutor class localization: --> 
+		<key name="ActionExecutor.table.name">Шаг установки</key>
+		<key name="ActionExecutor.table.state">Состояние</key>
+
+		<key name="testaction">MZINANA</key>
 		
 	</lang>
 	<lang name="ru">
@@ -665,6 +693,10 @@
 		<key name="installation.step15.description">Description 1</key>
 		<key name="installation.step15.help">Help 1</key>
 
+		<key name="installation.step16.caption">Caption 1</key>
+		<key name="installation.step16.description">Description 1</key>
+		<key name="installation.step16.help">Help 1</key>
+
 <!-- Локализация класса WorkingDirectorySelector: --> 
 		<key name="WorkingDirectorySelector.file.label">Выберите папку</key>
 		<key name="WorkingDirectorySelector.file.tooltip">Выберите папку, в которую будет установлено ваше приложение</key>
@@ -705,6 +737,30 @@
 		<key name="UserAndPasswordSelector.password.label">Пароль</key>
 		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
 		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
+		
+<!-- Локализация класса ServiceNameSelector: --> 
+		<key name="ServiceNameSelector.service.label">Имя сервиса</key>
+		<key name="ServiceNameSelector.service.tooltip">Имя сервиса</key>
+		<key name="ServiceNameSelector.service.help">Имя сервиса</key>
+		
+<!-- Локализация класса ParametersTableModel: --> 
+		<key name="ParametersTableModel.column.name">Параметр</key>
+		<key name="ParametersTableModel.column.value">Значение</key>
+		<key name="ParametersTableModel.row.workdir">Папка для установки</key>
+		<key name="ParametersTableModel.row.jdbcdriver">Драйвер JDBC</key>
+		<key name="ParametersTableModel.row.connstring">Строка соединения</key>
+		<key name="ParametersTableModel.row.admin">Администратор БД</key>
+		<key name="ParametersTableModel.row.user">Пользователь-владелец</key>
+		<key name="ParametersTableModel.row.tablespace">Табличное пространство</key>
+		<key name="ParametersTableModel.row.connstring">Имя сервиса</key>
+		<key name="ParametersTableModel.row.value.default">из инсталлятора</key>
+		<key name="ParametersTableModel.row.value.nottyped">невыделенное</key>
+		
+<!-- Локализация класса ActionExecutor: --> 
+		<key name="ActionExecutor.table.name">Шаг установки</key>
+		<key name="ActionExecutor.table.state">Состояние</key>
+
+		<key name="testaction">MZINANA</key>
 		
 	</lang>	
 </localization>
