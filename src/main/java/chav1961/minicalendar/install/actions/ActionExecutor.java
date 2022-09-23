@@ -1,6 +1,11 @@
 package chav1961.minicalendar.install.actions;
 
 import java.awt.BorderLayout;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,8 +21,10 @@ import javax.swing.JProgressBar;
 
 import chav1961.minicalendar.install.InstallationDescriptor;
 import chav1961.minicalendar.install.actions.ActionInterface.State;
+import chav1961.purelib.basic.SystemErrLoggerFacade;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.LocalizationException;
+import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
 import chav1961.purelib.concurrent.interfaces.ExecutionControl;
@@ -30,10 +37,14 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 	private static final long 			serialVersionUID = 1L;
 	private static final String			KEY_NAME_LABEL = "ActionExecutor.table.name";
 	private static final String			KEY_STATE_LABEL = "ActionExecutor.table.state";
+	private static final String			KEY_THREAD_PREPARATION = "ActionExecutor.thread.preparation";
+	private static final String			KEY_THREAD_EXECUTION = "ActionExecutor.thread.execution";
+	private static final String			KEY_THREAD_TERMINATION = "ActionExecutor.thread.termination";
 	
 	private final Localizer				localizer;
 	private final AtomicBoolean			result = new AtomicBoolean();
-	private final AtomicReference<CountDownLatch>	ar = new AtomicReference<>(null);
+	private final AtomicReference<CountDownLatch>	arCountDown = new AtomicReference<>(null);
+	private final AtomicReference<File>				arLogger = new AtomicReference<>(null);
 	private final ActionInterface<InstallationDescriptor>[]	steps;
 	
 	private final JLabel				nameLabel = new JLabel("", JLabel.CENTER);
@@ -104,7 +115,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			throw new IllegalStateException("Attempt to start already started process");
 		}
 		else {
-			ar.set(new CountDownLatch(steps.length + 1));
+			arCountDown.set(new CountDownLatch(steps.length + 1));
 			t = new Thread(()->process());
 			t.setDaemon(true);
 			result.set(false);
@@ -146,17 +157,21 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 	}
 
 	public boolean waitCompletion() {
-		if (ar.get() == null) {
+		if (arCountDown.get() == null) {
 			throw new IllegalStateException("Process is not started yet");
 		}
 		else {
-			try{ar.get().await();
-				ar.set(null);
+			try{arCountDown.get().await();
+				arCountDown.set(null);
 				return result.get();
 			} catch (InterruptedException e) {
 				return false;
 			}
 		}
+	}
+
+	public File getErrorLog() {
+		return arLogger.get();
 	}
 	
 	@Override
@@ -174,68 +189,88 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			} catch (Exception e) {
 			}
 		}
-		if (ar.get() != null) {
+		if (arCountDown.get() != null) {
 			for (int index = 0; index < steps.length; index++) {
-				ar.get().countDown();
+				arCountDown.get().countDown();
 			}
 		}
 	}
 
 	private void process() {
-		// TODO Auto-generated method stub
 		try{
-			SwingUtils.getNearestLogger(this).message(Severity.info, "Preparation...");
-			fillState();
+			final File	f = File.createTempFile("install", ".log");
+			boolean		totalResult = true;
+
+			arLogger.set(f);
 			
-			for (ActionInterface<InstallationDescriptor> item : steps) {
-				item.prepare();
-			}
-			
-			boolean	totalResult = true;
-			
-			SwingUtils.getNearestLogger(this).message(Severity.info, "Start process...");
-			while (ar.get().getCount() > 1 && !Thread.interrupted()) {
-				fillState();
-				for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
-					if (item.getState() == State.AWAITING) {
-						if (allAncestorsCompleted(item.getAncestors())) {
-							try{
-								if (!item.execute(desc)) {
-									totalResult = false;
-									item.markAsFailed();
+			try{
+				try(final OutputStream	os = new FileOutputStream(f);
+					final PrintStream	ps = new PrintStream(os);
+					final LoggerFacade	self = new SystemErrLoggerFacade(ps)) {
+				
+					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_PREPARATION));
+					fillState();
+					
+					for (ActionInterface<InstallationDescriptor> item : steps) {
+						item.prepare(self);
+					}
+					
+					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_EXECUTION));
+					while (arCountDown.get().getCount() > 1 && !Thread.interrupted()) {
+						fillState();
+						for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
+							if (item.getState() == State.AWAITING) {
+								if (allAncestorsCompleted(item.getAncestors())) {
+									try{
+										if (!item.execute(self, desc)) {
+											totalResult = false;
+											item.markAsFailed();
+										}
+									} catch (Exception exc) {
+										totalResult = false;
+										item.markAsFailed();
+									} finally {
+										arCountDown.get().countDown();
+									}
 								}
-							} catch (Exception exc) {
-								totalResult = false;
-								item.markAsFailed();
-							} finally {
-								ar.get().countDown();
+								else if (anyAncestorFailed(item.getAncestors())) {
+									item.markAsFailed();
+									arCountDown.get().countDown();
+								}
+								
 							}
 						}
-						else if (anyAncestorFailed(item.getAncestors())) {
-							item.markAsFailed();
-							ar.get().countDown();
-						}
-						
 					}
+					
+					if (Thread.interrupted()) {
+						for (int index = 0; index < steps.length; index++) {
+							arCountDown.get().countDown();
+						}
+					}
+					
+					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_TERMINATION));
+					for (ActionInterface<InstallationDescriptor> item : steps) {
+						item.unprepare(self);
+					}
+					result.set(totalResult);
+					
 				}
-			}
-			
-			if (Thread.interrupted()) {
+				
+				arCountDown.get().countDown();
+			} catch (Exception e) {
+				SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
 				for (int index = 0; index < steps.length; index++) {
-					ar.get().countDown();
+					arCountDown.get().countDown();
+				}
+				if (totalResult) {
+					arLogger.get().delete();
+					arLogger.set(null);
 				}
 			}
-			
-			SwingUtils.getNearestLogger(this).message(Severity.info, "Unprepare...");
-			for (ActionInterface<InstallationDescriptor> item : steps) {
-				item.unprepare();
-			}
-			result.set(totalResult);
-			ar.get().countDown();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
 			for (int index = 0; index < steps.length; index++) {
-				ar.get().countDown();
+				arCountDown.get().countDown();
 			}
 		}
 	}
@@ -289,7 +324,6 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 		}
 	}
 
-
 	private ActionInterface<InstallationDescriptor> intanceByClass(final Class<?> cl) {
 		for (ActionInterface<InstallationDescriptor> item : steps) {
 			if (cl.isInstance(item)) {
@@ -299,7 +333,6 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 		throw new IllegalArgumentException("Item with the class ["+cl.getCanonicalName()+"] not found");
 	}
 
-	
 	private void buildScreen() {
 		setLayout(new LabelledLayout(10, 10));
 		add(nameLabel, LabelledLayout.LABEL_AREA);
@@ -321,11 +354,10 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 		nameLabel.setText(localizer.getValue(KEY_NAME_LABEL));
 		stateLabel.setText(localizer.getValue(KEY_STATE_LABEL));
 		for (int index = 0; index < steps.length; index++) {
-			names[index].setText(steps[index].getActionName());
+			names[index].setText(localizer.getValue(steps[index].getActionName()));
 		}
 	}
 
-	
 	private final class StateAndProgress extends JPanel {
 		private static final long serialVersionUID = 1L;
 		

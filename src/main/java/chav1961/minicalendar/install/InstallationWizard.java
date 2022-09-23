@@ -5,8 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URI;
 import java.util.Map.Entry;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -14,6 +17,7 @@ import javax.swing.JOptionPane;
 import chav1961.minicalendar.interfaces.InstallMode;
 import chav1961.purelib.basic.ArgParser;
 import chav1961.purelib.basic.PureLibSettings;
+import chav1961.purelib.basic.PureLibSettings.CurrentOS;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.exceptions.CommandLineParametersException;
 import chav1961.purelib.basic.exceptions.ConsoleCommandException;
@@ -43,6 +47,7 @@ public class InstallationWizard {
 	public static final String	KEY_CONFIRM_RESTORE_TITLE = "installer.confirm.restore.title";
 	public static final String	KEY_CONFIRM_RESTORE_MESSAGE = "installer.confirm.restore.message";
 
+	public static final String	ICON_LOCATION = "/images/favicon.png";
 	public static final String	JDBC_DRIVER_LOCATION = "/chav1961/minicalendar/database/postgresql-42.4.1.jar";
 	
 	
@@ -53,7 +58,10 @@ public class InstallationWizard {
 			final ContentMetadataInterface	appModel = ContentModelFactory.forXmlDescription(InstallationWizard.class.getResourceAsStream("/chav1961/minicalendar/model/application.xml"));
 			final SubstitutableProperties	props = parser.isTyped(ARG_PROPFILE_LOCATION) ? SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class)) : new SubstitutableProperties();
 
-			if (!checkAdminRights()) {
+			if (PureLibSettings.CURRENT_OS != CurrentOS.WINDOWS) {
+				throw new ConsoleCommandException("Installer doesn't support current OS ["+System.getProperty("os.name")+"]"); 
+			}
+			else if (!checkAdminRights()) {
 				throw new ConsoleCommandException("You don't have admin rights to start this application"); 
 			}
 			else {
@@ -110,12 +118,16 @@ public class InstallationWizard {
 																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION))
 																, new Step4(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION)), new Step5(localizer)
 																, new Step6(localizer), new Step7(localizer), new Step8(localizer), new Step9(), new Step10()
-																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15(), new Step16());
+																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15(), new Step16(localizer));
 
+					container.setIconImage(ImageIO.read(URI.create("root://"+InstallationWizard.class.getCanonicalName()+ICON_LOCATION).toURL()));
 					container.showDialog();
 				}
 			}
-		} catch (CommandLineParametersException | ConsoleCommandException | IOException exc) {
+		} catch (CommandLineParametersException | ConsoleCommandException exc) {
+			// TODO Auto-generated catch block
+			exc.printStackTrace();
+		} catch (IOException exc) {
 			// TODO Auto-generated catch block
 			exc.printStackTrace();
 		} catch (EnvironmentException exc) {

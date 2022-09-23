@@ -3,6 +3,7 @@ package chav1961.minicalendar.install.actions;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
 
 public interface ActionInterface<T> {
@@ -29,8 +30,8 @@ public interface ActionInterface<T> {
 	ProgressIndicator getProgressIndicator();
 	Class<?>[] getAncestors();
 	
-	void prepare() throws Exception;
-	boolean execute(T content, Object... parameters) throws Exception;
+	void prepare(LoggerFacade logger) throws Exception;
+	boolean execute(LoggerFacade logger, T content, Object... parameters) throws Exception;
 	void markAsFailed();
-	void unprepare() throws Exception;
+	void unprepare(LoggerFacade logger) throws Exception;
 }

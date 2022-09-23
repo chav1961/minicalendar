@@ -378,11 +378,22 @@
 <!-- ActionExecutor class localization: --> 
 		<key name="ActionExecutor.table.name">Шаг установки</key>
 		<key name="ActionExecutor.table.state">Состояние</key>
+		<key name="ActionExecutor.thread.preparation">Подготовка...</key>
+		<key name="ActionExecutor.thread.execution">Выполнение...</key>
+		<key name="ActionExecutor.thread.termination">Завершение...</key>
 
 <!-- StartReviewSelector: class localization: --> 
 		<key name="StartReviewSelector.startreview.check">Состояние</key>
 
+<!-- Install steps localization: --> 
+		<key name="CleanDirectoryAction.actionname">Подготовка папки приложения</key>
+		<key name="CopyApplicationContentAction.actionname">Копирование файлов</key>
+		<key name="PrepareDatabaseAction.actionname">Подготовка БД</key>
+		<key name="PrepareRegistryAction.actionname">Подготовка и запуск сервиса</key>
+		<key name="PrepareServiceAction.actionname">Регистрация приложения в системе</key>
+
 		<key name="testaction">MZINANA</key>
+		<key name="FirstAction">MZINANA</key>
 		
 	</lang>
 	<lang name="ru">
@@ -666,7 +677,7 @@
 		
 		<key name="installation.step8.caption">Установка завершена</key>
 		<key name="installation.step8.description">Установка приложения завершена</key>
-		<key name="installation.step8.help">&lt;p&gt;&lt;b&gt;Поздравляем!&lt;/b&gt; Приложение успешно установлено на ваш компьютер и уже готов к работе. Вы увидите его в значках панели управления. Для работы с ним достаточно щелкнуть по этому значку.&lt;p/&gt;&lt;br/&gt;&lt;p&gt;Если вас интересует краткий обзор возможностей этого приложения, вы можете прямо сейчас просмотреть их описание.&lt;p&gt;&lt;br/&gt;</key>
+		<key name="installation.step8.help">&lt;p&gt;&lt;b&gt;Поздравляем!&lt;/b&gt; Приложение успешно установлено на ваш компьютер и уже готов к работе. Вы увидите его в значках области системных уведомлений компьютера (Systen tray) в виде значка &lt;img src="root://chav1961.minicalendar.Application/images/favicon.png" alt="часов"&gt;. Для работы с приложением достаточно щелкнуть по этому значку.&lt;p/&gt;&lt;br/&gt;&lt;p&gt;Если вас интересует обзор возможностей этого приложения, вы можете прямо сейчас просмотреть их краткое описание.&lt;p&gt;&lt;br/&gt;</key>
 		
 		<key name="installation.step9.caption">Caption 1</key>
 		<key name="installation.step9.description">Description 1</key>
@@ -762,12 +773,22 @@
 <!-- Локализация класса ActionExecutor: --> 
 		<key name="ActionExecutor.table.name">Шаг установки</key>
 		<key name="ActionExecutor.table.state">Состояние</key>
+		<key name="ActionExecutor.thread.preparation">Подготовка...</key>
+		<key name="ActionExecutor.thread.execution">Выполнение...</key>
+		<key name="ActionExecutor.thread.termination">Завершение...</key>
 
 <!-- Локализация класса StartReviewSelector: --> 
 		<key name="StartReviewSelector.startreview.check">Запустить краткий обзор</key>
 		
+<!-- Локализация шагов установки: --> 
+		<key name="CleanDirectoryAction.actionname">Подготовка папки приложения</key>
+		<key name="CopyApplicationContentAction.actionname">Копирование файлов</key>
+		<key name="PrepareDatabaseAction.actionname">Подготовка БД</key>
+		<key name="PrepareRegistryAction.actionname">Подготовка и запуск сервиса</key>
+		<key name="PrepareServiceAction.actionname">Регистрация приложения в системе</key>
 		
 		<key name="testaction">MZINANA</key>
+		<key name="FirstAction">MZINANA</key>
 		
 	</lang>	
 </localization>

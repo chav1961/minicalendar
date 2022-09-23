@@ -1,6 +1,7 @@
 package chav1961.minicalendar.install.actions;
 
 import chav1961.minicalendar.install.InstallationDescriptor;
+import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
 import chav1961.purelib.i18n.interfaces.Localizer;
 
@@ -42,12 +43,12 @@ public class FirstAction implements ActionInterface<InstallationDescriptor>{
 	}
 
 	@Override
-	public void prepare() throws Exception {
+	public void prepare(final LoggerFacade logger) throws Exception {
 		currentState = State.AWAITING;
 	}
 
 	@Override
-	public boolean execute(final InstallationDescriptor content, final Object... parameters) throws Exception {
+	public boolean execute(final LoggerFacade logger, final InstallationDescriptor content, final Object... parameters) throws Exception {
 		pi.start(KEY_FIRSTACTION_STEP,10);
 		for (int index = 0; index < 10; index++) {
 			Thread.sleep(1000);
@@ -64,7 +65,7 @@ public class FirstAction implements ActionInterface<InstallationDescriptor>{
 	}
 
 	@Override
-	public void unprepare() throws Exception {
+	public void unprepare(final LoggerFacade logger) throws Exception {
 		currentState = State.UNPREPARED;
 	}
 
