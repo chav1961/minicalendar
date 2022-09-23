@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.ProcessBuilder.Redirect;
 import java.net.URI;
 import java.util.Map.Entry;
 
@@ -152,8 +153,30 @@ public class InstallationWizard {
 	}
 
 	private static boolean checkAdminRights() {
-		// TODO Auto-generated method stub
-		return true;
+		switch (PureLibSettings.CURRENT_OS) {
+			case LINUX		:
+				return false;
+			case MACOS		:
+				return false;
+			case UNKNOWN	:
+				return false;
+			case WINDOWS	:
+				return checkWindowsAdminRights();
+			default:
+				throw new UnsupportedOperationException("OS ["+PureLibSettings.CURRENT_OS+"] is not supported yet"); 
+		}
+	}
+
+	private static boolean checkWindowsAdminRights() {
+		try {
+			final ProcessBuilder	pb = new ProcessBuilder("net","session").redirectError(Redirect.DISCARD).redirectOutput(Redirect.DISCARD);
+			final Process			p = pb.start();
+			
+			p.waitFor();
+			return p.exitValue() == 0;
+		} catch (IOException | InterruptedException e) {
+			return false;
+		}
 	}
 
 	private static boolean askConfirmation(BufferedReader brdr, String string) {
