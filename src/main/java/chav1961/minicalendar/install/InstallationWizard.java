@@ -1,5 +1,6 @@
 package chav1961.minicalendar.install;
 
+import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +12,12 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import chav1961.minicalendar.interfaces.InstallMode;
 import chav1961.purelib.basic.ArgParser;
@@ -47,6 +51,10 @@ public class InstallationWizard {
 
 	public static final String	KEY_CONFIRM_RESTORE_TITLE = "installer.confirm.restore.title";
 	public static final String	KEY_CONFIRM_RESTORE_MESSAGE = "installer.confirm.restore.message";
+	public static final String	KEY_CONFIRM_CANCEL_TITLE = "installer.confirm.cancel.title";
+	public static final String	KEY_CONFIRM_CANCEL_MESSAGE = "installer.confirm.cancel.title";
+	public static final String	KEY_SAVE_SETTINGS_LABEL = "installer.confirm.savesettings.label";
+	public static final String	KEY_SAVE_SETTINGS_TOOLTIP = "installer.confirm.savesettings.tooltip";
 
 	public static final String	ICON_LOCATION = "/images/favicon.png";
 	public static final String	JDBC_DRIVER_LOCATION = "/chav1961/minicalendar/database/postgresql-42.4.1.jar";
@@ -56,7 +64,7 @@ public class InstallationWizard {
 		try(final Reader					rdr = new InputStreamReader(System.in);
 			final BufferedReader			brdr = new BufferedReader(rdr)) {
 			final ArgParser					parser = new ApplicationArgParser().parse(args);
-			final ContentMetadataInterface	appModel = ContentModelFactory.forXmlDescription(InstallationWizard.class.getResourceAsStream("/chav1961/minicalendar/model/application.xml"));
+			final ContentMetadataInterface	appModel = ContentModelFactory.forXmlDescription(InstallationWizard.class.getResourceAsStream("/chav1961/minicalendar/model/installer.xml"));
 			final SubstitutableProperties	props = parser.isTyped(ARG_PROPFILE_LOCATION) ? SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class)) : new SubstitutableProperties();
 
 			if (PureLibSettings.CURRENT_OS != CurrentOS.WINDOWS) {
@@ -100,7 +108,7 @@ public class InstallationWizard {
 					final InstallationDescriptor	desc = new InstallationDescriptor();
 					
 					if (lastStateProps.containsKey(LAST_STATE_CONTENT_TYPE) && lastStateProps.getProperty(LAST_STATE_CONTENT_TYPE).equals(LAST_STATE_CONTENT_TYPE_AWAITED)) {
-						if (new JLocalizedOptionPane(localizer).confirm(null, KEY_CONFIRM_RESTORE_MESSAGE, KEY_CONFIRM_RESTORE_TITLE, JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+						if (new JLocalizedOptionPane(localizer).confirm(null, KEY_CONFIRM_RESTORE_MESSAGE, KEY_CONFIRM_RESTORE_TITLE, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 							final ReflectedMapWrapper	wrapper = new ReflectedMapWrapper(desc);	// Quick deserialization
 							
 							for (Entry<Object, Object> item : lastStateProps.entrySet()) {
@@ -119,10 +127,20 @@ public class InstallationWizard {
 																, new Step1(localizer), new Step2(localizer), new Step3(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION))
 																, new Step4(localizer, InstallationWizard.class.getResource(JDBC_DRIVER_LOCATION)), new Step5(localizer)
 																, new Step6(localizer), new Step7(localizer), new Step8(localizer), new Step9(), new Step10()
-																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15(), new Step16(localizer));
+																, new Step11(), new Step12(), new Step13(), new Step14(), new Step15(), new Step16(localizer)) {
+						
+														@Override
+														protected void cancel() {
+															if (processCancel(localizer, desc)) {
+																super.cancel();
+															}
+														}
+													};
 
 					container.setIconImage(ImageIO.read(URI.create("root://"+InstallationWizard.class.getCanonicalName()+ICON_LOCATION).toURL()));
-					container.showDialog();
+					if (container.showDialog()) {
+						LAST_STATE.delete();
+					}
 				}
 			}
 		} catch (CommandLineParametersException | ConsoleCommandException exc) {
@@ -153,18 +171,19 @@ public class InstallationWizard {
 	}
 
 	private static boolean checkAdminRights() {
-		switch (PureLibSettings.CURRENT_OS) {
-			case LINUX		:
-				return false;
-			case MACOS		:
-				return false;
-			case UNKNOWN	:
-				return false;
-			case WINDOWS	:
-				return checkWindowsAdminRights();
-			default:
-				throw new UnsupportedOperationException("OS ["+PureLibSettings.CURRENT_OS+"] is not supported yet"); 
-		}
+		return true;
+//		switch (PureLibSettings.CURRENT_OS) {
+//			case LINUX		:
+//				return false;
+//			case MACOS		:
+//				return false;
+//			case UNKNOWN	:
+//				return false;
+//			case WINDOWS	:
+//				return checkWindowsAdminRights();
+//			default:
+//				throw new UnsupportedOperationException("OS ["+PureLibSettings.CURRENT_OS+"] is not supported yet"); 
+//		}
 	}
 
 	private static boolean checkWindowsAdminRights() {
@@ -183,6 +202,33 @@ public class InstallationWizard {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	private static boolean processCancel(final Localizer localizer, final InstallationDescriptor desc) {
+		final JPanel	panel = new JPanel(new BorderLayout(5, 5));
+		final JLabel	label = new JLabel(localizer.getValue(KEY_CONFIRM_CANCEL_MESSAGE));
+		final JCheckBox	check = new JCheckBox(localizer.getValue(KEY_SAVE_SETTINGS_LABEL), true);
+		
+		panel.add(label, BorderLayout.CENTER);
+		panel.add(check, BorderLayout.SOUTH);
+		check.setToolTipText(localizer.getValue(KEY_SAVE_SETTINGS_TOOLTIP));
+		
+		final boolean	result = new JLocalizedOptionPane(localizer).confirm(null, panel, KEY_CONFIRM_CANCEL_TITLE, JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
+		
+		if (result && check.isSelected()) {
+			final SubstitutableProperties	props = new SubstitutableProperties();
+			
+			storeInstallationState(desc, props);
+			props.remove("adminPassword");
+			props.remove("userPassword");
+			props.put("mode", "install");
+			props.put(LAST_STATE_CONTENT_TYPE, LAST_STATE_CONTENT_TYPE_AWAITED);
+			try{props.store(LAST_STATE);
+			} catch (IOException e) {
+			}
+		}
+		return result;
+	}
+	
 	
 	private static void storeInstallationState(final InstallationDescriptor desc, final SubstitutableProperties props) {
 		final ReflectedMapWrapper	wrapper = new ReflectedMapWrapper(desc);	// Quick deserialization

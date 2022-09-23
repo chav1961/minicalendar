@@ -3,4 +3,6 @@ module chav1961.minicalendar {
 	requires java.desktop;
 	requires java.sql;
 	requires java.naming;
+	
+	exports chav1961.minicalendar.interfaces;
 }

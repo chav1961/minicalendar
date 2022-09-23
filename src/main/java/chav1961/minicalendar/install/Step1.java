@@ -86,7 +86,7 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 			rbs.setSelectionIndex(0);
 		}
 		else {
-			rbs.setSelectionIndex(content.mode.ordinal() + 1);
+			rbs.setSelectionIndex(content.mode.ordinal());
 		}
 	}
 

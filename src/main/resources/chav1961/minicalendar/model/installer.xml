@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<app:root xmlns:app="http://ui.purelib.chav1961/">
+	<app:i18n location="i18n:xml:root://chav1961.minicalendar.install.InstallationWizard/chav1961/minicalendar/i18n/installer.xml"/>
+</app:root>

@@ -19,7 +19,7 @@ import chav1961.purelib.i18n.interfaces.Localizer.LocaleChangeListener;
 
 public class LogFileViewer extends JPanel implements LocaleChangeListener {
 	private static final long 	serialVersionUID = 1L;
-	private static final String	KEY_STORE_FILE = "";
+	private static final String	KEY_STORE_FILE = "LogFileViewer.button.store";
 
 	private final Localizer	localizer;
 	private final JTextArea	content = new JTextArea();
