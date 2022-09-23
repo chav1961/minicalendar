@@ -25,6 +25,8 @@ import chav1961.purelib.i18n.interfaces.Localizer;
 import chav1961.purelib.streams.char2char.SubstitutableWriter;
 import chav1961.purelib.ui.interfaces.ErrorProcessing;
 
+
+// https://medium.com/@benmorel/creating-a-linux-service-with-systemd-611b5c8b91d6
 public class PrepareServiceAction implements ActionInterface<InstallationDescriptor>{
 	private static final String		KEY_ACTION_NAME = "PrepareServiceAction.actionname";
 	
