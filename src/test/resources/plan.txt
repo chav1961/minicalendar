@@ -1,0 +1,27 @@
+User
+-Id
+-Name
+-Created
+-CanLogon
+Event
+- Id
+- UserId
+- Created
+- CronMask
+- NotificationPolicyId
+- NotifyBefore
+- NotifyAfter
+- StartFrom
+- ExpectedTo
+- EventType
+- Comment
+Attachments
+- Id
+- EventId
+- AttachmentType
+- Reference
+- Content
+NotificationDesc
+- Id
+- HornType
+- MessageType

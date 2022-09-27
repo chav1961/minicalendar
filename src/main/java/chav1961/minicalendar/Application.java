@@ -65,7 +65,7 @@ public class Application {
 														,NanoServiceFactory.NANOSERVICE_CREOLE_EPILOGUE_URI, Application.class.getResource("epilog.cre").toString() 
 													));
 		
-			try(final InputStream				is = Application.class.getResourceAsStream("application.xml");
+			try(final InputStream				is = URI.create("root://"+Application.class.getCanonicalName()+"/chav1961/minicalendar/model/application.xml").toURL().openStream();
 				final InputStream				dbIs = Application.class.getResourceAsStream("model.json");
 				final Reader					dbRdr = new InputStreamReader(dbIs, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {
 				final ContentMetadataInterface	xda = ContentModelFactory.forXmlDescription(is);

@@ -9,8 +9,8 @@ import java.net.URL;
 
 import chav1961.purelib.basic.Utils;
 
-class InstallUtils {
-	static File extractDriverFile(final URL jdbcDriverURL) throws IOException {
+public class InstallUtils {
+	public static File extractDriverFile(final URL jdbcDriverURL) throws IOException {
 		final File	temp = File.createTempFile("jdbc", ".jar");
 		
 		try(final InputStream	is = jdbcDriverURL.openStream();
