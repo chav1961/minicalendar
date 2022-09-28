@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Connection;
@@ -15,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import chav1961.minicalendar.database.DatabaseWrapper;
+import chav1961.purelib.basic.CharUtils.SubstitutionSource;
 import chav1961.purelib.basic.HttpUtils;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SimpleURLClassLoader;
@@ -34,6 +36,8 @@ import chav1961.purelib.nanoservice.interfaces.Path;
 import chav1961.purelib.nanoservice.interfaces.RootPath;
 import chav1961.purelib.nanoservice.interfaces.ToBody;
 import chav1961.purelib.sql.JDBCUtils;
+import chav1961.purelib.sql.ResultSetSubstitutionSource;
+import chav1961.purelib.streams.char2char.SubstitutableWriter;
 
 @RootPath("/content")
 public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacadeOwner, LocalizerOwner, NodeMetadataOwner {
@@ -76,78 +80,68 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.dbw = new DatabaseWrapper(conn);
 		}
 	}
-
 	
 	@Path("/login")
-	public int login(@FromHeader("Accept-Language")final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+	public int login(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
 
-		printStartPage(wr);
-		try(final InputStream	is = URI.create("root://"+getClass().getCanonicalName()+"/templates/"+langs[0].name()+"/userlogon.html").toURL().openStream();
-			final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {
-			
-			Utils.copyStream(rdr, wr);
-		}
-		
-//		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
-//		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
-//		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
-//		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
-//		wr.write("</p>\n</form>\n");
-//		wr.write("<hr/>\n");
-		printEndPage(wr);
+		printStartPage(wr, langs[0]);
+		printContent("userlogon.html", langs[0], (s)->s, wr);
+		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
-	
 	@Path("/notificationtypes")
-	public int notificationTypes(@ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		printStartPage(wr);
+	public int notificationTypes(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+
+		printStartPage(wr, langs[0]);
+		printContent("notificationtypes_header.html", langs[0], (s)->s, wr);
 		try(final ResultSet	rs = dbw.getNotificationTypes()) {
+			final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
 			
 			while (rs.next()) {
-				
+				printContent("notificationtypes_line.html", langs[0], ss, wr);
 			}
 		} catch (SQLException e) {
 			throw new IOException(e); 
 		}
-//		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
-//		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
-//		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
-//		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
-//		wr.write("</p>\n</form>\n");
-//		wr.write("<hr/>\n");
-		printEndPage(wr);
+		printContent("notificationtypes_footer.html", langs[0], (s)->s, wr);
+		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
 	
 	@Path("/alerts")
-	public int alerts(@ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		printStartPage(wr);
+	public int alerts(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+
+		printStartPage(wr, langs[0]);
 //		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
 //		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
 //		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
 //		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
 //		wr.write("</p>\n</form>\n");
 //		wr.write("<hr/>\n");
-		printEndPage(wr);
+		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
 
 	@Path("/manage")
-	public int manage(@ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		printStartPage(wr);
+	public int manage(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+
+		printStartPage(wr, langs[0]);
 //		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
 //		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
 //		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
 //		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
 //		wr.write("</p>\n</form>\n");
 //		wr.write("<hr/>\n");
-		printEndPage(wr);
+		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
@@ -182,13 +176,20 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		loader.close();
 	}
 
-	private void printStartPage(final Writer wr) {
-		// TODO Auto-generated method stub
-		
+	private void printStartPage(final Writer wr, final SupportedLanguages lang) throws IOException {
+		printContent("startpage.html", lang, (s)->s, wr);
 	}
 
-	private void printEndPage(final Writer wr) {
-		// TODO Auto-generated method stub
-		
+	private void printContent(final String content, final SupportedLanguages lang, final SubstitutionSource source, final Writer wr) throws IOException {
+		try(final InputStream	is = URI.create("root://"+getClass().getCanonicalName()+"/templates/"+lang.name()+"/"+content).toURL().openStream();
+			final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {
+
+			final SubstitutableWriter	swr = new SubstitutableWriter(wr, source);
+			Utils.copyStream(rdr, swr);
+		}
+	}
+	
+	private void printEndPage(final Writer wr, final SupportedLanguages lang) throws IOException {
+		printContent("endpage.html", lang, (s)->s, wr);
 	}
 }
