@@ -3,10 +3,7 @@ package chav1961.minicalendar.install;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
-import chav1961.minicalendar.install.actions.ActionExecutor;
-import chav1961.minicalendar.install.actions.FirstAction;
 import chav1961.minicalendar.install.components.StartReviewSelector;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.i18n.interfaces.Localizer;

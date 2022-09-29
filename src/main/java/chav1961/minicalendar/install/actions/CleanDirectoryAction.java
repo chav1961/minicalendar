@@ -18,21 +18,16 @@ public class CleanDirectoryAction implements ActionInterface<InstallationDescrip
 	
 	private final Localizer				localizer;
 	private final ProgressIndicatorImpl	pii;
-	private final ErrorProcessing<InstallationDescriptor, InstallationError>	err;
 	
 	private State		state = State.UNPREPARED;
 	
-	public CleanDirectoryAction(final Localizer localizer, final ErrorProcessing<InstallationDescriptor, InstallationError> err) {
+	public CleanDirectoryAction(final Localizer localizer) {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
-		}
-		else if (err == null) {
-			throw new NullPointerException("Error processing can't be null");
 		}
 		else {
 			this.localizer = localizer;
 			this.pii = new ProgressIndicatorImpl(localizer);
-			this.err = err;
 		}
 	}
 	
@@ -58,45 +53,73 @@ public class CleanDirectoryAction implements ActionInterface<InstallationDescrip
 
 	@Override
 	public void prepare(final LoggerFacade logger) throws Exception {
-		state = State.AWAITING;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.AWAITING;
+		}
 	}
 
 	@Override
 	public boolean execute(final LoggerFacade logger, final InstallationDescriptor content, final Object... parameters) throws Exception {
-		final File		workDir = content.workDir;
-		final File[]	wdContent = workDir.listFiles();
-		
-		if (wdContent == null) {
-			state = State.COMPLETED;
-			return true;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else if (content == null) {
+			throw new NullPointerException("Installation descriptor can't be null");
 		}
 		else {
-			final List<File>	collection = new ArrayList<>();
-			boolean	success = true;
-
-			try{state = State.PROCESSING;
+			final File		workDir = content.workDir;
+			final File[]	wdContent = workDir.listFiles();
 			
-				pii.start(KEY_CALCULATE_DIR_CONTENT, wdContent.length);
-				for(int index = 0; index < wdContent.length; index++) {
-					calculateContent(wdContent[index], collection);
-					pii.processed(index);
-				}
-				pii.end();
-				
-				
-				pii.start(KEY_REMOVE_DIR_CONTENT, collection.size());
-				for (int index = collection.size() - 1, count = 0; index >= 0; index--, count++) {
-					if (!collection.get(index).delete()) {
-						success = false;
-					}
-					pii.processed(count);
-				}
-				pii.end();
-	
-				return success;
-			} finally {
-				state = success ? State.COMPLETED : State.FAILED;
+			if (wdContent == null || wdContent.length == 0) {
+				state = State.COMPLETED;
+				return true;
 			}
+			else {
+				final List<File>	collection = new ArrayList<>();
+				boolean	success = true;
+	
+				try{state = State.PROCESSING;
+				
+					pii.start(KEY_CALCULATE_DIR_CONTENT, wdContent.length);
+					for(int index = 0; index < wdContent.length; index++) {
+						calculateContent(wdContent[index], collection);
+						pii.processed(index);
+					}
+					pii.end();
+					
+					
+					pii.start(KEY_REMOVE_DIR_CONTENT, collection.size());
+					for (int index = collection.size() - 1, count = 0; index >= 0; index--, count++) {
+						if (!collection.get(index).delete()) {
+							success = false;
+						}
+						pii.processed(count);
+					}
+					pii.end();
+		
+					return success;
+				} finally {
+					state = success ? State.COMPLETED : State.FAILED;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void markAsFailed() {
+		state = State.FAILED;
+	}
+
+	@Override
+	public void unprepare(final LoggerFacade logger) throws Exception {
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.UNPREPARED;
 		}
 	}
 
@@ -111,15 +134,5 @@ public class CleanDirectoryAction implements ActionInterface<InstallationDescrip
 				}
 			}
 		}
-	}
-
-	@Override
-	public void markAsFailed() {
-		state = State.FAILED;
-	}
-
-	@Override
-	public void unprepare(final LoggerFacade logger) throws Exception {
-		state = State.UNPREPARED;
 	}
 }

@@ -32,21 +32,16 @@ public class PrepareServiceAction implements ActionInterface<InstallationDescrip
 	
 	private final Localizer				localizer;
 	private final ProgressIndicatorImpl	pii;
-	private final ErrorProcessing<InstallationDescriptor, InstallationError>	err;
 	
 	private State		state = State.UNPREPARED;
 	
-	public PrepareServiceAction(final Localizer localizer, final ErrorProcessing<InstallationDescriptor, InstallationError> err) {
+	public PrepareServiceAction(final Localizer localizer) {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
-		}
-		else if (err == null) {
-			throw new NullPointerException("Error processing can't be null");
 		}
 		else {
 			this.localizer = localizer;
 			this.pii = new ProgressIndicatorImpl(localizer);
-			this.err = err;
 		}
 	}
 	
@@ -67,30 +62,44 @@ public class PrepareServiceAction implements ActionInterface<InstallationDescrip
 
 	@Override
 	public Class<?>[] getAncestors() {
-		return new Class<?>[] {CopyApplicationContentAction.class, PrepareDatabaseAction.class} ;
+		return new Class<?>[] {CopyApplicationContentAction.class, PrepareDatabaseAction.class};
 	}
 
 	@Override
 	public void prepare(final LoggerFacade logger) throws Exception {
-		state = State.AWAITING;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.AWAITING;
+		}
 	}
 
 	@Override
 	public boolean execute(final LoggerFacade logger, InstallationDescriptor content, Object... parameters) throws Exception {
-		switch (PureLibSettings.CURRENT_OS) {
-			case LINUX		:
-				state = State.FAILED;
-				return false;
-			case MACOS		:
-				state = State.FAILED;
-				return false;
-			case UNKNOWN	:
-				state = State.FAILED;
-				return false;
-			case WINDOWS	:
-				return executeWindows(logger, content);
-			default :
-				throw new UnsupportedOperationException("OS ["+PureLibSettings.CURRENT_OS+"] is not supported yet"); 
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else if (content == null) {
+			throw new NullPointerException("Installation descriptor can't be null");
+		}
+		else {
+//		switch (PureLibSettings.CURRENT_OS) {
+//			case LINUX		:
+//				state = State.FAILED;
+//				return false;
+//			case MACOS		:
+//				state = State.FAILED;
+//				return false;
+//			case UNKNOWN	:
+//				state = State.FAILED;
+//				return false;
+//			case WINDOWS	:
+//				return executeWindows(logger, content);
+//			default :
+//				throw new UnsupportedOperationException("OS ["+PureLibSettings.CURRENT_OS+"] is not supported yet"); 
+//		}
+			return true;
 		}
 	}
 
@@ -162,6 +171,11 @@ public class PrepareServiceAction implements ActionInterface<InstallationDescrip
 
 	@Override
 	public void unprepare(final LoggerFacade logger) throws Exception {
-		state = State.UNPREPARED;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.UNPREPARED;
+		}
 	}
 }

@@ -44,12 +44,12 @@ public class LogFileViewer extends JPanel implements LocaleChangeListener {
 		fillLocalizedStrings();
 	}
 
-	public void setLogFile(final File logfile) throws IOException {
+	public void setLogFile(final File logFile) throws IOException {
 		if (logFile == null) {
 			throw new NullPointerException("Log file can't be null");
 		}
 		else {
-			this.logFile = logfile;
+			this.logFile = logFile;
 			content.setText(Utils.fromResource(logFile.toURI().toURL(), PureLibSettings.DEFAULT_CONTENT_ENCODING));
 		}
 	}

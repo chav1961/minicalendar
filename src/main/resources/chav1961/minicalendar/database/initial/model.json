@@ -74,7 +74,7 @@
 					 	 "format":"msl"
 					},
 					 {"name":"us_Created",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.users.us_Created",
 						 "tooltipId":"minical.users.us_Created.tt",
 						 "appUri":"app:column:/minical.users/us_Created?seq=3&type=DATETIME",
@@ -82,7 +82,7 @@
 					 	 "format":"ms"
 					},
 					 {"name":"us_LastModified",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.users.us_LastModified",
 						 "tooltipId":"minical.users.us_LastModified.tt",
 						 "appUri":"app:column:/minical.users/us_LastModified?seq=4&type=DATETIME",
@@ -124,7 +124,7 @@
 					 	 "format":"m"
 					},
 					 {"name":"ev_Created",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_Created",
 						 "tooltipId":"minical.events.ev_Created.tt",
 						 "appUri":"app:column:/minical.events/ev_Created?seq=3&type=DATETIME",
@@ -148,7 +148,7 @@
 					 	 "format":"msl"
 					},
 					 {"name":"ev_NotifyBefore",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyBefore",
 						 "tooltipId":"minical.events.ev_NotifyBefore.tt",
 						 "appUri":"app:column:/minical.events/ev_NotifyBefore?seq=6&type=DATETIME",
@@ -156,7 +156,7 @@
 					 	 "format":"ms"
 					},
 					 {"name":"ev_NotifyAfter",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyAfter",
 						 "tooltipId":"minical.events.ev_NotifyAfter.tt",
 						 "appUri":"app:column:/minical.events/ev_NotifyAfter?seq=7&type=DATETIME",
@@ -164,7 +164,7 @@
 					 	 "format":"ms"
 					},
 					 {"name":"ev_StartFrom",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_StartFrom",
 						 "tooltipId":"minical.events.ev_StartFrom.tt",
 						 "appUri":"app:column:/minical.events/ev_StartFrom?seq=8&type=DATETIME",
@@ -172,7 +172,7 @@
 					 	 "format":"ms"
 					},
 					 {"name":"ev_ExpectedTo",
-						 "type":"java.sql.Timestamo",
+						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_ExpectedTo",
 						 "tooltipId":"minical.events.ev_ExpectedTo.tt",
 						 "appUri":"app:column:/minical.events/ev_ExpectedTo?seq=9&type=DATETIME",

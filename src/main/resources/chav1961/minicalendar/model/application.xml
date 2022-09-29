@@ -9,6 +9,12 @@
 		<app:separator/>
 		<app:item name="tray.quit" caption="tray.quit" tooltip="tray.quit.tt" action="tray.quit"/>
 	</app:menu>
+	<app:menu id="traymenuservice">
+		<app:item name="tray.site" caption="tray.site" tooltip="tray.site.tt" action="tray.site"/>
+		<app:item name="tray.show" caption="tray.show" tooltip="tray.show.tt" action="tray.show"/>
+		<app:separator/>
+		<app:item name="tray.about" caption="tray.about" tooltip="tray.about.tt" action="tray.about"/>
+	</app:menu>
 	<app:menu id="mainmenu">
 		<app:submenu name="menu.main.file" caption="menu.main.file" tooltip="menu.main.file.tt">
 			<app:item name="menu.main.file.connect" caption="menu.main.file.connect" tooltip="menu.main.file.connect.tt" action="main.file.connect"/>

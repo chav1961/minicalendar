@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPopupMenu;
 
@@ -30,6 +31,7 @@ import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
+import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
 public class Application {
@@ -40,6 +42,8 @@ public class Application {
 	public static final int		ARG_PORT_DEFAULT = 23109;
 	public static final String	ARG_PROPFILE_LOCATION = "prop";
 	public static final String	ARG_PROPFILE_LOCATION_DEFAULT = "./.minicalendar.properties";
+	public static final String	ARG_AS_SERVICE = "asService";
+	public static final boolean	ARG_AS_SERVICE_DEFAULT = false;
 	
 	public static final String	PATH_CONTENT = "/content";
 
@@ -50,6 +54,7 @@ public class Application {
 	
 	
 	private static final Timer			timer = new Timer(true);
+	private static final CountDownLatch	latch = new CountDownLatch(1);
 	private static JSystemTray			tray;
 	private static NanoServiceFactory	factory;
 	private static LocaleChangeListener	lcl;
@@ -72,7 +77,7 @@ public class Application {
 				final ContentMetadataInterface	dbModel = ContentModelFactory.forJsonDescription(dbRdr);
 				
 				final Localizer					localizer = LocalizerFactory.getLocalizer(xda.getRoot().getLocalizerAssociated());
-				final JPopupMenu				trayMenu = SwingUtils.toJComponent(xda.byUIPath(URI.create("ui:/model/navigation.top.traymenu")), JPopupMenu.class);
+				final JPopupMenu				trayMenu = SwingUtils.toJComponent(xda.byUIPath(URI.create("ui:/model/navigation.top."+(parser.getValue(ARG_AS_SERVICE,boolean.class) ? "traymenuasservice" : "traymenu"))), JPopupMenu.class);
 				final SubstitutableProperties	appProps = SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class));
 				final int						portNumber = parser.getValue(ARG_PORT, int.class); 
 
@@ -91,10 +96,20 @@ public class Application {
 				timer.schedule(maint, 30000, 30000);
 				
 				factory.start();
+				if (!parser.getValue(ARG_AS_SERVICE,boolean.class)) {
+					try{
+						latch.await();
+					} catch (InterruptedException exc) {
+					} finally {
+						terminate(args);
+					}
+				}
 			} catch (URISyntaxException | EnvironmentException | IOException | ContentException | SQLException exc) {
+				exc.printStackTrace();
 				System.exit(128);			
 			}
 		} catch (CommandLineParametersException exc) {
+			exc.printStackTrace();
 			System.exit(129);			
 		}
 	}
@@ -126,7 +141,8 @@ public class Application {
 	private static class ApplicationArgParser extends ArgParser {
 		private static final ArgParser.AbstractArg[]	KEYS = {
 			new IntegerArg(ARG_PORT, true, "Port to use for browser", ARG_PORT_DEFAULT),
-			new FileArg(ARG_PROPFILE_LOCATION, false, "Property file location", ARG_PROPFILE_LOCATION_DEFAULT)
+			new FileArg(ARG_PROPFILE_LOCATION, false, "Property file location", ARG_PROPFILE_LOCATION_DEFAULT),
+			new BooleanArg(ARG_AS_SERVICE, false, "Start application as service", ARG_AS_SERVICE_DEFAULT)
 		};
 		
 		private ApplicationArgParser() {

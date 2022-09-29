@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +23,7 @@ import javax.swing.JProgressBar;
 
 import chav1961.minicalendar.install.InstallationDescriptor;
 import chav1961.minicalendar.install.actions.ActionInterface.State;
+import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SystemErrLoggerFacade;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -42,9 +45,9 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 	private static final String			KEY_THREAD_TERMINATION = "ActionExecutor.thread.termination";
 	
 	private final Localizer				localizer;
+	private final File					loggerFile;
 	private final AtomicBoolean			result = new AtomicBoolean();
 	private final AtomicReference<CountDownLatch>	arCountDown = new AtomicReference<>(null);
-	private final AtomicReference<File>				arLogger = new AtomicReference<>(null);
 	private final ActionInterface<InstallationDescriptor>[]	steps;
 	
 	private final JLabel				nameLabel = new JLabel("", JLabel.CENTER);
@@ -65,6 +68,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 		}
 		else {
 			this.localizer = localizer;
+			this.loggerFile = getLogFile();
 			this.steps = steps;
 			
 			final Set<Class<?>>	cl = new HashSet<>();
@@ -171,7 +175,7 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 	}
 
 	public File getErrorLog() {
-		return arLogger.get();
+		return loggerFile;
 	}
 	
 	@Override
@@ -189,88 +193,89 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 			} catch (Exception e) {
 			}
 		}
-		if (arCountDown.get() != null) {
+		final CountDownLatch	latch = arCountDown.get(); 
+		if (latch != null) {
 			for (int index = 0; index < steps.length; index++) {
-				arCountDown.get().countDown();
+				latch.countDown();
 			}
 		}
 	}
 
 	private void process() {
-		try{
-			final File	f = File.createTempFile("install", ".log");
-			boolean		totalResult = true;
+		boolean		totalResult = true;
 
-			arLogger.set(f);
+		try{
+			try(final OutputStream	os = new FileOutputStream(loggerFile);
+				final PrintWriter	pw = new PrintWriter(os, true, Charset.forName(PureLibSettings.DEFAULT_CONTENT_ENCODING));
+				final LoggerFacade	self = new SystemErrLoggerFacade(pw)) {
 			
-			try{
-				try(final OutputStream	os = new FileOutputStream(f);
-					final PrintStream	ps = new PrintStream(os);
-					final LoggerFacade	self = new SystemErrLoggerFacade(ps)) {
+				SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_PREPARATION));
+				fillState();
 				
-					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_PREPARATION));
+				for (ActionInterface<InstallationDescriptor> item : steps) {
+					item.prepare(self);
+				}
+				
+				SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_EXECUTION));
+				while (arCountDown.get().getCount() > 1 && !Thread.interrupted()) {
 					fillState();
-					
-					for (ActionInterface<InstallationDescriptor> item : steps) {
-						item.prepare(self);
-					}
-					
-					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_EXECUTION));
-					while (arCountDown.get().getCount() > 1 && !Thread.interrupted()) {
-						fillState();
-						for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
-							if (item.getState() == State.AWAITING) {
-								if (allAncestorsCompleted(item.getAncestors())) {
-									try{
-										if (!item.execute(self, desc)) {
-											totalResult = false;
-											item.markAsFailed();
-										}
-									} catch (Exception exc) {
+					for (ActionInterface<InstallationDescriptor> item : steps) {	// Select and call
+						if (anyAncestorFailed(item.getAncestors())) {
+							self.message(Severity.warning, localizer.getValue(item.getActionName()) + " skip because of previous error(s)");
+							item.markAsFailed();
+							arCountDown.get().countDown();
+						}
+						else if (item.getState() == State.AWAITING) {
+							if (allAncestorsCompleted(item.getAncestors())) {
+								try{final long	startTime = System.currentTimeMillis(); 
+								
+									if (!item.execute(self, desc)) {
 										totalResult = false;
 										item.markAsFailed();
-									} finally {
-										arCountDown.get().countDown();
+										self.message(Severity.warning, localizer.getValue(item.getActionName()) + " failed, duration = " + (System.currentTimeMillis() - startTime) + "msec");
 									}
-								}
-								else if (anyAncestorFailed(item.getAncestors())) {
+									else {
+										self.message(Severity.info, localizer.getValue(item.getActionName()) + " completed, duration = " + (System.currentTimeMillis() - startTime) + "msec");
+									}
+								} catch (Exception exc) {
+									self.message(Severity.error, exc, localizer.getValue(item.getActionName()) + " error: " + exc.getLocalizedMessage());
+									totalResult = false;
 									item.markAsFailed();
+								} finally {
 									arCountDown.get().countDown();
 								}
-								
 							}
 						}
 					}
-					
-					if (Thread.interrupted()) {
-						for (int index = 0; index < steps.length; index++) {
-							arCountDown.get().countDown();
-						}
-					}
-					
-					SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_TERMINATION));
-					for (ActionInterface<InstallationDescriptor> item : steps) {
-						item.unprepare(self);
-					}
-					result.set(totalResult);
-					
 				}
 				
-				arCountDown.get().countDown();
-			} catch (Exception e) {
-				SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
-				for (int index = 0; index < steps.length; index++) {
-					arCountDown.get().countDown();
+				if (Thread.interrupted()) {
+					for (int index = 0; index < steps.length; index++) {
+						arCountDown.get().countDown();
+					}
 				}
-				if (totalResult) {
-					arLogger.get().delete();
-					arLogger.set(null);
+				
+				SwingUtils.getNearestLogger(this).message(Severity.info, localizer.getValue(KEY_THREAD_TERMINATION));
+				for (ActionInterface<InstallationDescriptor> item : steps) {
+					item.unprepare(self);
+				}
+				result.set(totalResult);
+			}
+
+			if (!Thread.interrupted()) {
+				arCountDown.get().countDown();
+			}
+		} catch (Exception e) {
+			final CountDownLatch	latch  = arCountDown.get();
+			
+			SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
+			if (latch != null) {
+				for (int index = 0; index < steps.length; index++) {
+					latch.countDown();
 				}
 			}
-		} catch (IOException e) {
-			SwingUtils.getNearestLogger(this).message(Severity.error, e, e.getLocalizedMessage());
-			for (int index = 0; index < steps.length; index++) {
-				arCountDown.get().countDown();
+			if (totalResult) {
+				loggerFile.delete();
 			}
 		}
 	}
@@ -347,6 +352,13 @@ public class ActionExecutor extends JPanel implements ExecutionControl, LocaleCh
 	private void fillState() {
 		for (int index = 0; index < steps.length; index++) {
 			states[index].state.setIcon(steps[index].getState().getStateIcon());
+		}
+	}
+
+	private File getLogFile() {
+		try{return File.createTempFile("install", ".log");
+		} catch (IOException e) {
+			return new File("./install.log");
 		}
 	}
 	

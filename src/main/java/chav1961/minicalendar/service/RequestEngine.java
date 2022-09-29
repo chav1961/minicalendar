@@ -15,6 +15,7 @@ import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import chav1961.minicalendar.Application;
 import chav1961.minicalendar.database.DatabaseWrapper;
 import chav1961.purelib.basic.CharUtils.SubstitutionSource;
 import chav1961.purelib.basic.HttpUtils;
@@ -41,10 +42,6 @@ import chav1961.purelib.streams.char2char.SubstitutableWriter;
 
 @RootPath("/content")
 public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacadeOwner, LocalizerOwner, NodeMetadataOwner {
-	private static final String		PROP_DRIVER = "";
-	private static final String		PROP_CONNECTION = "";
-	private static final String		PROP_USER = "";
-	private static final String		PROP_PASSWORD = "";
 	
 	private final Localizer					localizer;
 	private final LoggerFacade				logger;
@@ -75,8 +72,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.props = properties;
 			
 			this.loader = new SimpleURLClassLoader(new URL[] {});
-			this.driver = JDBCUtils.loadJdbcDriver(this.loader, props.getProperty(PROP_DRIVER, File.class));
-			this.conn = JDBCUtils.getConnection(driver, props.getProperty(PROP_CONNECTION, URI.class), props.getProperty(PROP_USER), props.getProperty(PROP_PASSWORD, char[].class));
+			this.driver = JDBCUtils.loadJdbcDriver(this.loader, props.getProperty(Application.PROP_JDBC_DRIVER, File.class));
+			this.conn = JDBCUtils.getConnection(driver, props.getProperty(Application.PROP_JDBC_CONN_STRING, URI.class), props.getProperty(Application.PROP_JDBC_USER), props.getProperty(Application.PROP_JDBC_PASSWORD, char[].class));
 			this.dbw = new DatabaseWrapper(conn);
 		}
 	}

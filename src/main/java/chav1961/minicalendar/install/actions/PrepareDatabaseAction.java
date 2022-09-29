@@ -13,6 +13,7 @@ import java.sql.Statement;
 import chav1961.minicalendar.install.InstallUtils;
 import chav1961.minicalendar.install.InstallationDescriptor;
 import chav1961.minicalendar.install.InstallationError;
+import chav1961.minicalendar.install.actions.ActionInterface.State;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
@@ -36,25 +37,20 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 	private final Localizer				localizer;
 	private final URL					jdbcDriverUrl;
 	private final ProgressIndicatorImpl	pii;
-	private final ErrorProcessing<InstallationDescriptor, InstallationError>	err;
 	
 	private State		state = State.UNPREPARED;
 	
-	public PrepareDatabaseAction(final Localizer localizer, final URL jdbcDriverURL, final ErrorProcessing<InstallationDescriptor, InstallationError> err) {
+	public PrepareDatabaseAction(final Localizer localizer, final URL jdbcDriverURL) {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
 		}
 		else if (jdbcDriverURL == null) {
 			throw new NullPointerException("Error processing can't be null");
 		}
-		else if (err == null) {
-			throw new NullPointerException("Error processing can't be null");
-		}
 		else {
 			this.localizer = localizer;
 			this.jdbcDriverUrl = jdbcDriverURL;
 			this.pii = new ProgressIndicatorImpl(localizer);
-			this.err = err;
 		}
 	}
 	
@@ -80,32 +76,49 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 
 	@Override
 	public void prepare(final LoggerFacade logger) throws Exception {
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.AWAITING;
+		}
 	}
 
 	@Override
 	public boolean execute(final LoggerFacade logger, InstallationDescriptor content, Object... parameters) throws Exception {
-		final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
-		
-		try(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {
-			final File						driverFile = content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl);
-			final Driver					driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
-			final ConnectionGetter			connGetter = ()-> JDBCUtils.getConnection(driver, 
-													URI.create(content.connString), 
-													content.admin, 
-													content.adminPassword);
-			final DatabaseManagement<SimpleDottedVersion>			dbMgmt = new InstallDatabaseManagement();
-
-			try(final SimpleDatabaseManager<SimpleDottedVersion>	mgr = new SimpleDatabaseManager<>(null, dbmm, connGetter, (c)->dbMgmt)) {
-				
-			}
-			return true;
-		} catch (SQLException e) {
-			return false;
-		} catch (IOException | ContentException e) {
-			logger.message(Severity.error, e, e.getLocalizedMessage());
-			return false;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
 		}
-		
+		else if (content == null) {
+			throw new NullPointerException("Installation descriptor can't be null");
+		}
+		else {
+			final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
+			
+			try(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {
+				final File						driverFile = content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl);
+				final Driver					driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
+				final ConnectionGetter			connGetter = ()-> JDBCUtils.getConnection(driver, 
+														URI.create(content.connString), 
+														content.admin, 
+														content.adminPassword);
+				final DatabaseManagement<SimpleDottedVersion>			dbMgmt = new InstallDatabaseManagement();
+	
+				try(final SimpleDatabaseManager<SimpleDottedVersion>	mgr = new SimpleDatabaseManager<>(logger, dbmm, connGetter, (c)->dbMgmt);
+					final Connection			conn = mgr.getConnection()) {
+					
+					SQLModelUtils.createSchemaOwnerByModel(conn, mgr.getCurrentDatabaseModel(), content.user, content.user, content.userPassword);
+					SQLModelUtils.createDatabaseByModel(conn, mgr.getCurrentDatabaseModel(), content.user);
+				}
+				return true;
+			} catch (SQLException exc) {
+				logger.message(Severity.error, exc, exc.getLocalizedMessage());
+				return false;
+			} catch (IOException | ContentException exc) {
+				logger.message(Severity.error, exc, exc.getLocalizedMessage());
+				return false;
+			}
+		}
 	}
 
 	@Override
@@ -115,6 +128,12 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 
 	@Override
 	public void unprepare(final LoggerFacade logger) throws Exception {
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			state = State.UNPREPARED;
+		}
 	}
 	
 	private static class InstallDatabaseManagement implements DatabaseManagement<SimpleDottedVersion> {

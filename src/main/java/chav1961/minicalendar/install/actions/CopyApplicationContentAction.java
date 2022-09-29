@@ -12,6 +12,7 @@ import java.util.List;
 
 import chav1961.minicalendar.install.InstallationDescriptor;
 import chav1961.minicalendar.install.InstallationError;
+import chav1961.minicalendar.install.actions.ActionInterface.State;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
@@ -27,22 +28,17 @@ public class CopyApplicationContentAction implements ActionInterface<Installatio
 	
 	private final Localizer				localizer;
 	private final ProgressIndicatorImpl	pii;
-	private final ErrorProcessing<InstallationDescriptor, InstallationError>	err;
 	private final List<String[]>		copyPairs = new ArrayList<>();
 	
 	private State		state = State.UNPREPARED;
 	
-	public CopyApplicationContentAction(final Localizer localizer, final ErrorProcessing<InstallationDescriptor, InstallationError> err) {
+	public CopyApplicationContentAction(final Localizer localizer) {
 		if (localizer == null) {
 			throw new NullPointerException("Localizer can't be null");
-		}
-		else if (err == null) {
-			throw new NullPointerException("Error processing can't be null");
 		}
 		else {
 			this.localizer = localizer;
 			this.pii = new ProgressIndicatorImpl(localizer);
-			this.err = err;
 		}
 	}
 	
@@ -68,56 +64,69 @@ public class CopyApplicationContentAction implements ActionInterface<Installatio
 
 	@Override
 	public void prepare(final LoggerFacade logger) throws Exception {
-		copyPairs.clear();
-		
-		try(final InputStream	is = this.getClass().getResourceAsStream("copylist.csv");
-			final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING);
-			final CsvStaxParser	parser = new CsvStaxParser(rdr, String.class, String.class, long.class)) {
-			
-			String[]	pair = null;
-			int			count = 0;
-			
-			for (CsvStaxParserLexType item : parser) {
-				switch (item) {
-					case INTEGER_VALUE	:
-						break;
-					case STRING_VALUE	:
-						if (count % 2 == 0) {
-							pair = new String[] {parser.stringValue() , null};
-						}
-						else {
-							pair[1] = parser.stringValue();
-							copyPairs.add(pair);
-						}
-						count++;
-						break;
-					default:
-						throw new IllegalArgumentException("Unsupported type ["+item+"] in the CSV content at line "+parser.row()+" col "+parser.col());
-				}
-				
-			}
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
 		}
-		state = State.AWAITING;
+		else {
+			copyPairs.clear();
+			
+			try(final InputStream	is = this.getClass().getResourceAsStream("copylist.csv");
+				final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING);
+				final CsvStaxParser	parser = new CsvStaxParser(rdr, 8192, false, String.class, String.class, long.class)) {
+				
+				String[]	pair = null;
+				int			count = 0;
+				
+				for (CsvStaxParserLexType item : parser) {
+					switch (item) {
+						case INTEGER_VALUE	:
+							break;
+						case STRING_VALUE	:
+							if (count % 2 == 0) {
+								pair = new String[] {parser.stringValue().trim() , null};
+							}
+							else {
+								pair[1] = parser.stringValue().trim();
+								copyPairs.add(pair);
+							}
+							count++;
+							break;
+						default:
+							throw new IllegalArgumentException("Unsupported type ["+item+"] in the CSV content at line "+parser.row()+" col "+parser.col());
+					}
+					
+				}
+			}
+			state = State.AWAITING;
+		}
 	}
 
 	@Override
 	public boolean execute(final LoggerFacade logger, final InstallationDescriptor content, final Object... parameters) throws Exception {
-		pii.start(KEY_ACTION_COPY, copyPairs.size());
-		for (int index = 0; index < copyPairs.size(); index++) {
-			final File	target = new File(content.workDir, copyPairs.get(index)[1]);
-			
-			target.getParentFile().mkdirs();
-			try(final InputStream	is = URI.create(copyPairs.get(index)[1]).toURL().openStream();
-				final OutputStream	os = new FileOutputStream(target)) {
-				
-				Utils.copyStream(is, os);
-			}
-			pii.processed(index);
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
 		}
-		pii.end();
-		
-		state = State.COMPLETED;
-		return true;
+		else if (content == null) {
+			throw new NullPointerException("Installation descriptor can't be null");
+		}
+		else {
+			pii.start(KEY_ACTION_COPY, copyPairs.size());
+			for (int index = 0; index < copyPairs.size(); index++) {
+				final File	target = new File(content.workDir, copyPairs.get(index)[1]);
+				
+				target.getParentFile().mkdirs();
+				try(final InputStream	is = URI.create(copyPairs.get(index)[0]).toURL().openStream();
+					final OutputStream	os = new FileOutputStream(target)) {
+					
+					Utils.copyStream(is, os);
+				}
+				pii.processed(index);
+			}
+			pii.end();
+			
+			state = State.COMPLETED;
+			return true;
+		}
 	}
 
 	@Override
@@ -127,7 +136,12 @@ public class CopyApplicationContentAction implements ActionInterface<Installatio
 
 	@Override
 	public void unprepare(final LoggerFacade logger) throws Exception {
-		copyPairs.clear();
-		state = State.UNPREPARED;
+		if (logger == null) {
+			throw new NullPointerException("Logger can't be null");
+		}
+		else {
+			copyPairs.clear();
+			state = State.UNPREPARED;
+		}
 	}
 }

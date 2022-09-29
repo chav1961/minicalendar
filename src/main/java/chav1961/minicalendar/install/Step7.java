@@ -1,12 +1,16 @@
 package chav1961.minicalendar.install;
 
+import java.net.URL;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 import chav1961.minicalendar.install.actions.ActionExecutor;
-import chav1961.minicalendar.install.actions.FirstAction;
+import chav1961.minicalendar.install.actions.CleanDirectoryAction;
+import chav1961.minicalendar.install.actions.CopyApplicationContentAction;
+import chav1961.minicalendar.install.actions.PrepareDatabaseAction;
+import chav1961.minicalendar.install.actions.PrepareRegistryAction;
+import chav1961.minicalendar.install.actions.PrepareServiceAction;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.i18n.interfaces.Localizer;
@@ -26,13 +30,18 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 	private final ActionExecutor	ax;
 	private boolean					result = false;
 	
-	public Step7(final Localizer localizer) {
+	public Step7(final Localizer localizer, final URL jdbcDriverURL) {
 		if (localizer == null) {
 			throw new NullPointerException("Localzier can't be null"); 
 		}
+		else if (jdbcDriverURL == null) {
+			throw new NullPointerException("JDBC driver URL can't be null"); 
+		}
 		else {
 			this.localizer = localizer;
-			this.ax = new ActionExecutor(localizer, new FirstAction(localizer));
+			this.ax = new ActionExecutor(localizer, new CleanDirectoryAction(localizer), new CopyApplicationContentAction(localizer)
+								, new PrepareDatabaseAction(localizer, jdbcDriverURL), new PrepareRegistryAction(localizer)
+								, new PrepareServiceAction(localizer));
 		}
 	}
 	
@@ -78,13 +87,11 @@ public class Step7 implements WizardStep<InstallationDescriptor, InstallationErr
 
 	@Override
 	public void beforeShow(final InstallationDescriptor content, final Map<String, Object> temporary, final ErrorProcessing<InstallationDescriptor, InstallationError> err) throws FlowException {
+		temporary.put("logfile",ax.getErrorLog());
 		ax.setInstallationDescriptor(content);
+		
 		try{ax.start();
 			result = ax.waitCompletion();
-			
-			if (!result) {
-				temporary.put("logfile",ax.getErrorLog());
-			}
 		} catch (Exception e) {
 			result = false;
 			throw new FlowException(e);
