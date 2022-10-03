@@ -2,7 +2,7 @@
 	 "name":"minical",
 	 "type":"chav1961.purelib.model.SchemaContainer",
 	 "labelId":"unknown",
-	 "appUri":"app:schema:/minical?version=1.0",
+	 "appUri":"app:schema:/minical?version=1.0&UUID=721a66c2-d589-4ba4-ab35-712d5a0979ab",
 	 "relUri":"model",
 	 "localizer":"i18n:xml:root://chav1961.minicalendar.Application/chav1961/minicalendar/i18n/i18n.xml",
 	 "format":"",
@@ -77,7 +77,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.users.us_Created",
 						 "tooltipId":"minical.users.us_Created.tt",
-						 "appUri":"app:column:/minical.users/us_Created?seq=3&type=DATETIME",
+						 "appUri":"app:column:/minical.users/us_Created?seq=3&type=TIMESTAMP",
 						 "relUri":"us_Created",
 					 	 "format":"ms"
 					},
@@ -85,7 +85,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.users.us_LastModified",
 						 "tooltipId":"minical.users.us_LastModified.tt",
-						 "appUri":"app:column:/minical.users/us_LastModified?seq=4&type=DATETIME",
+						 "appUri":"app:column:/minical.users/us_LastModified?seq=4&type=TIMESTAMP",
 						 "relUri":"us_LastModified",
 					 	 "format":"ms"
 					},
@@ -127,7 +127,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_Created",
 						 "tooltipId":"minical.events.ev_Created.tt",
-						 "appUri":"app:column:/minical.events/ev_Created?seq=3&type=DATETIME",
+						 "appUri":"app:column:/minical.events/ev_Created?seq=3&type=TIMESTAMP",
 						 "relUri":"ev_Created",
 					 	 "format":"msl"
 					},
@@ -151,7 +151,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyBefore",
 						 "tooltipId":"minical.events.ev_NotifyBefore.tt",
-						 "appUri":"app:column:/minical.events/ev_NotifyBefore?seq=6&type=DATETIME",
+						 "appUri":"app:column:/minical.events/ev_NotifyBefore?seq=6&type=TIMESTAMP",
 						 "relUri":"ev_NotifyBefore",
 					 	 "format":"ms"
 					},
@@ -159,7 +159,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyAfter",
 						 "tooltipId":"minical.events.ev_NotifyAfter.tt",
-						 "appUri":"app:column:/minical.events/ev_NotifyAfter?seq=7&type=DATETIME",
+						 "appUri":"app:column:/minical.events/ev_NotifyAfter?seq=7&type=TIMESTAMP",
 						 "relUri":"ev_NotifyAfter",
 					 	 "format":"ms"
 					},
@@ -167,7 +167,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_StartFrom",
 						 "tooltipId":"minical.events.ev_StartFrom.tt",
-						 "appUri":"app:column:/minical.events/ev_StartFrom?seq=8&type=DATETIME",
+						 "appUri":"app:column:/minical.events/ev_StartFrom?seq=8&type=TIMESTAMP",
 						 "relUri":"ev_StartFrom",
 					 	 "format":"ms"
 					},
@@ -175,7 +175,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_ExpectedTo",
 						 "tooltipId":"minical.events.ev_ExpectedTo.tt",
-						 "appUri":"app:column:/minical.events/ev_ExpectedTo?seq=9&type=DATETIME",
+						 "appUri":"app:column:/minical.events/ev_ExpectedTo?seq=9&type=TIMESTAMP",
 						 "relUri":"ev_StartFrom",
 					 	 "format":"s"
 					},
@@ -275,7 +275,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.alerts.al_Created",
 						 "tooltipId":"minical.alerts.al_Created.tt",
-						 "appUri":"app:column:/minical.alerts/al_Created?seq=3&type=DATETIME",
+						 "appUri":"app:column:/minical.alerts/al_Created?seq=3&type=TIMESTAMP",
 						 "relUri":"al_Created",
 					 	 "format":"m"
 					},

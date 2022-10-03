@@ -16,6 +16,7 @@ import chav1961.minicalendar.install.InstallationError;
 import chav1961.minicalendar.install.actions.ActionInterface.State;
 import chav1961.purelib.basic.SimpleURLClassLoader;
 import chav1961.purelib.basic.exceptions.ContentException;
+import chav1961.purelib.basic.exceptions.EnvironmentException;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
@@ -93,24 +94,26 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 			throw new NullPointerException("Installation descriptor can't be null");
 		}
 		else {
-			final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
+//			final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
 			
-			try(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {
-				final File						driverFile = content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl);
-				final Driver					driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
-				final ConnectionGetter			connGetter = ()-> JDBCUtils.getConnection(driver, 
-														URI.create(content.connString), 
-														content.admin, 
-														content.adminPassword);
-				final DatabaseManagement<SimpleDottedVersion>			dbMgmt = new InstallDatabaseManagement();
-	
-				try(final SimpleDatabaseManager<SimpleDottedVersion>	mgr = new SimpleDatabaseManager<>(logger, dbmm, connGetter, (c)->dbMgmt);
-					final Connection			conn = mgr.getConnection()) {
-					
-					SQLModelUtils.createSchemaOwnerByModel(conn, mgr.getCurrentDatabaseModel(), content.user, content.user, content.userPassword);
-					SQLModelUtils.createDatabaseByModel(conn, mgr.getCurrentDatabaseModel(), content.user);
-				}
-				return true;
+			try{
+//				(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {
+//				final File						driverFile = content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl);
+//				final Driver					driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
+//				final ConnectionGetter			connGetter = ()-> JDBCUtils.getConnection(driver, 
+//														URI.create(content.connString), 
+//														content.admin, 
+//														content.adminPassword);
+//				final DatabaseManagement<SimpleDottedVersion>			dbMgmt = new InstallDatabaseManagement();
+//	
+//				try(final SimpleDatabaseManager<SimpleDottedVersion>	mgr = new SimpleDatabaseManager<>(logger, dbmm, connGetter, (c)->dbMgmt);
+//					final Connection			conn = mgr.getConnection()) {
+//					
+//					SQLModelUtils.createSchemaOwnerByModel(conn, mgr.getCurrentDatabaseModel(), content.user, content.user, content.userPassword);
+//					SQLModelUtils.createDatabaseByModel(conn, mgr.getCurrentDatabaseModel(), content.user);
+//				}
+//				return true;
+				return execute(logger, content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl), URI.create(content.connString), content.admin, content.adminPassword, content.user, content.userPassword);
 			} catch (SQLException exc) {
 				logger.message(Severity.error, exc, exc.getLocalizedMessage());
 				return false;
@@ -136,7 +139,36 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 		}
 	}
 	
+	boolean execute(final LoggerFacade logger, final File driverFile, final URI connectionString, final String admin, final char[] adminPassword, final String user, final char[] userPassword) throws EnvironmentException, IOException, ContentException, SQLException {
+		final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
+		
+		try(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {
+			final Driver					driver = JDBCUtils.loadJdbcDriver(scl, driverFile);
+			final ConnectionGetter			connGetter = ()-> JDBCUtils.getConnection(driver, connectionString, admin, adminPassword);
+			final DatabaseManagement<SimpleDottedVersion>			dbMgmt = new InstallDatabaseManagement(admin, user, userPassword);
+
+			try(final SimpleDatabaseManager<SimpleDottedVersion>	mgr = new SimpleDatabaseManager<>(logger, dbmm, connGetter, (c)->dbMgmt);
+				final Connection			conn = mgr.getConnection()) {
+				
+//				SQLModelUtils.createSchemaOwnerByModel(conn, mgr.getCurrentDatabaseModel(), admin, user, userPassword);
+//				SQLModelUtils.createDatabaseByModel(conn, mgr.getCurrentDatabaseModel(), admin);
+			}
+			return true;
+		}
+	}
+	
 	private static class InstallDatabaseManagement implements DatabaseManagement<SimpleDottedVersion> {
+		private final String	admin;
+		private final String	user;
+		private final char[]	userPassword;
+		
+		private InstallDatabaseManagement(final String admin, final String user, final char[] userPassword) {
+			this.admin = admin;
+			this.user = user;
+			this.userPassword = userPassword;
+		}
+		
+		
 		@Override public void onOpen(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 		@Override public void onClose(final Connection conn, final ContentNodeMetadata model) throws SQLException {}
 		@Override public void onDowngrade(final Connection conn, final SimpleDottedVersion version, final ContentNodeMetadata model, final SimpleDottedVersion oldVersion, final ContentNodeMetadata oldModel) throws SQLException {}
@@ -163,6 +195,7 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 
 		@Override
 		public void onCreate(final Connection conn, final ContentNodeMetadata model) throws SQLException {
+			SQLModelUtils.createSchemaOwnerByModel(conn, model, admin, user, userPassword);
 			SQLModelUtils.createDatabaseByModel(conn, model);
 		}
 
