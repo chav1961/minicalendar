@@ -12,6 +12,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -34,10 +35,10 @@ import chav1961.purelib.ui.swing.interfaces.JComponentMonitor.MonitorEvent;
 
 public class TablespaceSelector extends JPanel implements LocaleChangeListener, ModuleAccessor {
 	private static final long 			serialVersionUID = 1L;
-	private static final String			KEY_USE_COMMON = "TablespaceSelector.button.usecommon";
-	private static final String			KEY_SELECT = "TablespaceSelector.button.dedicated";
-	private static final String			KEY_TOOLTIP = "TablespaceSelector.button.dedicated.tooltip";
-	private static final String			KEY_HELP = "TablespaceSelector.button.dedicated.help";
+	private static final String			KEY_COMMON = "TablespaceSelector.button.usecommon";
+	private static final String			KEY_COMMON_TOOLTIP = "TablespaceSelector.button.usecommon.tooltip";
+	private static final String			KEY_DEDICATED = "TablespaceSelector.button.dedicated";
+	private static final String			KEY_DEDICATED_TOOLTIP = "TablespaceSelector.button.dedicated.tooltip";
 
 	private final Localizer				localizer;
 	private final ButtonGroup			group = new ButtonGroup();
@@ -112,7 +113,7 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 			this.currentTablespace = newTablespace;
 		}
 	}
-	
+
 	@Override
 	public void allowUnnamedModuleAccess(final Module... unnamedModules) {
 		for (Module item : unnamedModules) {
@@ -121,26 +122,28 @@ public class TablespaceSelector extends JPanel implements LocaleChangeListener, 
 	}
 
 	private void buildScreen() {
+		final JPanel	selectPanel = new JPanel(new BorderLayout(5, 5));
 		final JPanel	topPanel = new JPanel(new BorderLayout(5, 5));
 		final JPanel	bottomPanel = new JPanel(new BorderLayout(5, 5));
-		final JPanel	selectPanel = new JPanel(new BorderLayout(5, 5));
 
 		group.add(common);
 		group.add(dedicated);
 		
 		selectPanel.add(dedicatedLabel, BorderLayout.WEST);
 		selectPanel.add(tablespaceField, BorderLayout.CENTER);
-		bottomPanel.add(dedicated, BorderLayout.WEST);
-		bottomPanel.add(selectPanel, BorderLayout.CENTER);
 		topPanel.add(common, BorderLayout.WEST);
 		topPanel.add(commonLabel, BorderLayout.CENTER);
+		bottomPanel.add(dedicated, BorderLayout.WEST);
+		bottomPanel.add(selectPanel, BorderLayout.CENTER);
 		setLayout(new GridLayout(2, 1, 5, 5));
 		add(topPanel);
 		add(bottomPanel);
 	}
 
 	private void fillLocalizedStrings() {
-		commonLabel.setText(localizer.getValue(KEY_USE_COMMON));
-		dedicatedLabel.setText(localizer.getValue(KEY_SELECT));
+		commonLabel.setText(localizer.getValue(KEY_COMMON));
+		common.setToolTipText(localizer.getValue(KEY_COMMON_TOOLTIP));
+		dedicatedLabel.setText(localizer.getValue(KEY_DEDICATED));
+		dedicated.setToolTipText(localizer.getValue(KEY_DEDICATED_TOOLTIP));
 	}
 }

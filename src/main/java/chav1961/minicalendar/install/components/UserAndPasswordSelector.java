@@ -32,6 +32,9 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 	private static final String		KEY_PASSWORD_LABEL = "UserAndPasswordSelector.password.label";
 	private static final String		KEY_PASSWORD_TOOLTIP = "UserAndPasswordSelector.password.tooltip";
 	private static final String		KEY_PASSWORD_HELP = "UserAndPasswordSelector.password.help";
+	private static final String		KEY_SCHEMA_LABEL = "UserAndPasswordSelector.schema";
+	private static final String		KEY_SCHEMA_TOOLTIP = "UserAndPasswordSelector.schema.tooltip";
+	private static final String		KEY_SCHEMA_HELP = "UserAndPasswordSelector.schema.help";
 
 	private final Localizer					localizer;
 	private final JLabel					userLabel = new JLabel();
@@ -40,9 +43,13 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 	private final JLabel					passwordLabel = new JLabel();
 	private final ContentNodeMetadata		passwordMeta;
 	private final JPasswordFieldWithMeta	passwordField;
+	private final JLabel					schemaLabel = new JLabel();
+	private final ContentNodeMetadata		schemaMeta;
+	private final JTextFieldWithMeta		schemaField;
 	
 	private String		user = "user";
 	private char[]		password = new char[] {'?'};
+	private String		schema = "minical";
 	
 	public UserAndPasswordSelector(final Localizer localizer) {
 		if (localizer == null) {
@@ -54,6 +61,7 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 			this.localizer = localizer;
 			this.userMeta = new MutableContentNodeMetadata("user", String.class, "user", localizerUri, KEY_USER_LABEL, KEY_USER_TOOLTIP, KEY_USER_HELP, new FieldFormat(String.class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
 			this.passwordMeta = new MutableContentNodeMetadata("password", char[].class, "password", localizerUri, KEY_PASSWORD_LABEL, KEY_PASSWORD_TOOLTIP, KEY_PASSWORD_HELP, new FieldFormat(char[].class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
+			this.schemaMeta = new MutableContentNodeMetadata("schema", String.class, "schema", localizerUri, KEY_SCHEMA_LABEL, KEY_SCHEMA_TOOLTIP, KEY_SCHEMA_HELP, new FieldFormat(char[].class, "ms"), URI.create(ContentMetadataInterface.APPLICATION_SCHEME+":/"), null);
 
 			try{
 				this.userField = (JTextFieldWithMeta)SwingUtils.prepareRenderer(userMeta, localizer, FieldFormat.ContentType.StringContent, new JComponentMonitor() {
@@ -106,6 +114,31 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 													return true;
 												}
 											});
+				this.schemaField = (JTextFieldWithMeta)SwingUtils.prepareRenderer(schemaMeta, localizer, FieldFormat.ContentType.StringContent, new JComponentMonitor() {
+												@Override
+												public boolean process(MonitorEvent event, ContentNodeMetadata metadata, JComponentInterface component, Object... parameters) throws ContentException {
+													switch (event) {
+														case Loading	:
+															component.assignValueToComponent(schema);
+															break;
+														case Validation	:
+															final String	temp = ((String)component.getChangedValueFromComponent()).trim();
+															
+															if (temp.isEmpty()) {
+																SwingUtils.getNearestLogger(UserAndPasswordSelector.this).message(Severity.warning, "Schema can't be empty");
+																return false;
+															}
+															else {
+																schema = temp;
+																return true;
+															}
+														default:
+															break;
+													
+													}
+													return true;
+												}
+											});
 			} catch (SyntaxException e) {
 				throw new IllegalArgumentException(e); 
 			}
@@ -132,7 +165,12 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 	}
 	
 	public void setUser(final String user) {
-		this.user = user;
+		if (user == null) {
+			throw new NullPointerException("User to set can't be null");
+		}
+		else {
+			this.user = user;
+		}
 	}
 
 	public char[] getPassword() {
@@ -140,8 +178,28 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 	}
 	
 	public void setPassword(final char[] password) {
-		this.password = password;
+		if (password == null) {
+			throw new NullPointerException("Password to set can't be null");
+		}
+		else {
+			this.password = password;
+		}
 	}
+	
+	public String getCurrentSchema() {
+		return schema;
+	}
+	
+	public void setCurrentSchema(final String newSchema) {
+		if (newSchema == null) {
+			throw new NullPointerException("Schema to set can't be null");
+		}
+		else {
+			schemaField.setText(newSchema);
+			this.schema = newSchema;
+		}
+	}
+	
 	
 	private void buildScreen() {
 		setLayout(new LabelledLayout(5, 5));
@@ -150,6 +208,8 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 		add(userField, LabelledLayout.CONTENT_AREA);
 		add(passwordLabel, LabelledLayout.LABEL_AREA);
 		add(passwordField, LabelledLayout.CONTENT_AREA);
+		add(schemaLabel, LabelledLayout.LABEL_AREA);
+		add(schemaField, LabelledLayout.CONTENT_AREA);
 	}
 	
 	private void fillLocalizedStrings() {
@@ -157,5 +217,7 @@ public class UserAndPasswordSelector extends JPanel implements LocaleChangeListe
 		userField.setToolTipText(localizer.getValue(KEY_USER_TOOLTIP));
 		passwordLabel.setText(localizer.getValue(KEY_PASSWORD_LABEL));
 		passwordField.setToolTipText(localizer.getValue(KEY_PASSWORD_TOOLTIP));
+		schemaLabel.setText(localizer.getValue(KEY_SCHEMA_LABEL));
+		schemaField.setToolTipText(localizer.getValue(KEY_SCHEMA_TOOLTIP));
 	}
 }

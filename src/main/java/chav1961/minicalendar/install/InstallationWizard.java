@@ -11,7 +11,6 @@ import java.net.URI;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;

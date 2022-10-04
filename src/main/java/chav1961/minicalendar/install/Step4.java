@@ -3,11 +3,7 @@ package chav1961.minicalendar.install;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Connection;
@@ -24,14 +20,12 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import chav1961.minicalendar.install.components.TablespaceSelector;
 import chav1961.minicalendar.install.components.UserAndPasswordSelector;
 import chav1961.purelib.basic.SimpleURLClassLoader;
-import chav1961.purelib.basic.Utils;
 import chav1961.purelib.basic.exceptions.ContentException;
 import chav1961.purelib.basic.exceptions.FlowException;
 import chav1961.purelib.basic.exceptions.LocalizationException;
@@ -185,6 +179,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 			tss.setCurrentTablespace(desc.tableSpace);
 			ups.setUser(desc.user);
 			ups.setPassword(desc.userPassword);
+			ups.setCurrentSchema(desc.schemaName);
 		}
 		
 		public void fillValuesTo(final InstallationDescriptor desc) {
@@ -192,6 +187,7 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 			desc.tableSpace = tss.getCurrentTablespace();
 			desc.user = ups.getUser();
 			desc.userPassword = ups.getPassword();
+			desc.schemaName = ups.getCurrentSchema();
 		}
 		
 		public boolean testSettings(final InstallationDescriptor desc) {
@@ -211,16 +207,28 @@ public class Step4 implements WizardStep<InstallationDescriptor, InstallationErr
 			try(final SimpleURLClassLoader	scl = new SimpleURLClassLoader(new URL[] {jdbcDriver.toURI().toURL()})) {
 				final Driver				driver = JDBCUtils.loadJdbcDriver(scl, jdbcDriver);
 				
-				try(final Connection		conn = JDBCUtils.getConnection(driver, URI.create(desc.connString), desc.admin, desc.adminPassword);
-					final PreparedStatement	stmt = conn.prepareStatement("select count(*) from pg_catalog.pg_user where usename = ?")) {
-					
-					stmt.setString(1, ups.getUser());
-					try(final ResultSet		rs = stmt.executeQuery()) {
-						if (rs.next() && rs.getInt(1) > 0) {
-							SwingUtils.getNearestLogger(this).message(Severity.warning, "User ["+ups.getUser()+"] exists");
+				try(final Connection		conn = JDBCUtils.getConnection(driver, URI.create(desc.connString), desc.admin, desc.adminPassword)) {
+					try(final PreparedStatement	stmt = conn.prepareStatement("select count(*) from pg_catalog.pg_user where usename = ?")) {
+						stmt.setString(1, ups.getUser());
+						try(final ResultSet		rs = stmt.executeQuery()) {
+							if (rs.next() && rs.getInt(1) > 0) {
+								SwingUtils.getNearestLogger(this).message(Severity.warning, "User ["+ups.getUser()+"] already exists");
+							}
+							else {
+								return true;
+							}
 						}
-						else {
-							return true;
+					}
+					
+					try(final PreparedStatement	stmt = conn.prepareStatement("select count(*) from pg_catalog.pg_namespace where nspname = ?")) {
+						stmt.setString(1, ups.getCurrentSchema());
+						try(final ResultSet		rs = stmt.executeQuery()) {
+							if (rs.next() && rs.getInt(1) > 0) {
+								SwingUtils.getNearestLogger(this).message(Severity.warning, "Schema ["+ups.getUser()+"] already exists");
+							}
+							else {
+								return true;
+							}
 						}
 					}
 				}

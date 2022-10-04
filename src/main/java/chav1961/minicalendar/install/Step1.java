@@ -20,6 +20,7 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 	public static final String	KEY_HELP = "installation.step1.help";
 
 	public static final String	KEY_SELECT_INSTALL = "installation.step1.select.install";
+	public static final String	KEY_SELECT_REINSTALL = "installation.step1.select.reinstall";
 	public static final String	KEY_SELECT_UPDATE = "installation.step1.select.update";
 	public static final String	KEY_SELECT_REMOVE = "installation.step1.select.remove";
 	
@@ -30,7 +31,7 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 			throw new NullPointerException("Localizer can't be null"); 
 		}
 		else {
-			this.rbs = new RadioButtonSelector(localizer, KEY_SELECT_INSTALL, KEY_SELECT_UPDATE, KEY_SELECT_REMOVE);
+			this.rbs = new RadioButtonSelector(localizer, KEY_SELECT_INSTALL, KEY_SELECT_REINSTALL, KEY_SELECT_UPDATE, KEY_SELECT_REMOVE);
 		}
 	}
 	
@@ -39,11 +40,11 @@ public class Step1 implements WizardStep<InstallationDescriptor, InstallationErr
 		final int	selected = rbs.getSelectionIndex();
 
 		switch (selected) {
-			case 0 :
+			case 0 : case 1 :
 				return Step2.class.getSimpleName();
-			case 1 :
-				return Step12.class.getSimpleName();
 			case 2 :
+				return Step12.class.getSimpleName();
+			case 3 :
 				return Step8.class.getSimpleName();
 			default :
 				throw new UnsupportedOperationException("Selection ["+selected+"] is not supported yet"); 

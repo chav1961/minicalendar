@@ -113,7 +113,7 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 //					SQLModelUtils.createDatabaseByModel(conn, mgr.getCurrentDatabaseModel(), content.user);
 //				}
 //				return true;
-				return execute(logger, content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl), URI.create(content.connString), content.admin, content.adminPassword, content.user, content.userPassword);
+				return execute(logger, content.jdbcSelected ? content.jdbcDriver : InstallUtils.extractDriverFile(jdbcDriverUrl), URI.create(content.connString), content.admin, content.adminPassword, content.user, content.userPassword, content.schemaName);
 			} catch (SQLException exc) {
 				logger.message(Severity.error, exc, exc.getLocalizedMessage());
 				return false;
@@ -139,7 +139,7 @@ public class PrepareDatabaseAction implements ActionInterface<InstallationDescri
 		}
 	}
 	
-	boolean execute(final LoggerFacade logger, final File driverFile, final URI connectionString, final String admin, final char[] adminPassword, final String user, final char[] userPassword) throws EnvironmentException, IOException, ContentException, SQLException {
+	boolean execute(final LoggerFacade logger, final File driverFile, final URI connectionString, final String admin, final char[] adminPassword, final String user, final char[] userPassword, final String schema) throws EnvironmentException, IOException, ContentException, SQLException {
 		final SimpleDatabaseModelManagement	dbmm = new SimpleDatabaseModelManagement(SimpleDatabaseModelManagement.collectModels(URI.create("root://"+getClass().getCanonicalName()+"/chav1961/minicalendar/database/models.txt")));
 		
 		try(final SimpleURLClassLoader		scl = new SimpleURLClassLoader(new URL[] {jdbcDriverUrl})) {

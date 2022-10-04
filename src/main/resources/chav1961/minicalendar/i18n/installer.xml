@@ -19,6 +19,7 @@
 		<key name="installation.step1.description">Description 1</key>
 		<key name="installation.step1.help">Help 1</key>
 		<key name="installation.step1.select.install">install</key>
+		<key name="installation.step1.select.reinstall">reinstall</key>
 		<key name="installation.step1.select.update">Update</key>
 		<key name="installation.step1.select.remove">Remove</key>
 		
@@ -121,9 +122,11 @@
 
 <!-- TablespaceSelector class localization: --> 
 		<key name="TablespaceSelector.button.usecommon">Невыделенное</key>
+		<key name="TablespaceSelector.button.usecommon.tooltip">Отдельное табличное пространсво создавать не требуетс</key>
 		<key name="TablespaceSelector.button.dedicated">Выделенное</key>
 		<key name="TablespaceSelector.button.dedicated.tooltip">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
-		<key name="TablespaceSelector.button.dedicated.help">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+		<key name="TablespaceSelector.button.schema">Имя схема</key>
+		<key name="TablespaceSelector.button.schema.tooltip">Задайте имя схемы в БД, где будут храниться данные</key>
 
 <!-- UserAndPasswordSelector class localization: --> 
 		<key name="UserAndPasswordSelector.user.label">Пользователь</key>
@@ -132,6 +135,9 @@
 		<key name="UserAndPasswordSelector.password.label">Пароль</key>
 		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
 		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
+		<key name="UserAndPasswordSelector.schema">Имя схемы БД</key>
+		<key name="UserAndPasswordSelector.schema.tooltip">Введите имя схемы</key>
+		<key name="UserAndPasswordSelector.schema.help">Введите имя схемы</key>
 
 <!-- ServiceNameSelector class localization: --> 
 		<key name="ServiceNameSelector.service.label">Имя сервиса</key>
@@ -194,6 +200,7 @@
 		<key name="installation.step1.description">Выбор режима работы:</key>
 		<key name="installation.step1.help">&lt;p&gt;Режим работы определяет, что именно будет делать инсталлятор. Он может установить ваше приложение на "чистый" компьютер, может удалить его с компьютера, а может обновить установленное у вас программное обеспечение.&lt;/p&gt; &lt;br/&gt; &lt;p&gt;Выберите, что именно вы желаете выполнить:&lt;/p&gt;&lt;&lt;br/&gt;</key>
 		<key name="installation.step1.select.install">Установить приложение</key>
+		<key name="installation.step1.select.reinstall">Повторить неудачную установку</key>
 		<key name="installation.step1.select.update">Обновить программное обеспечение</key>
 		<key name="installation.step1.select.remove">Удалить ранее установленное приложение</key>
 		
@@ -295,10 +302,12 @@
 		<key name="ConnectionStringSelector.password.help">Пароль</key>
 		
 <!-- Локализация класса TablespaceSelector: --> 
-		<key name="TablespaceSelector.button.usecommon">Не использовать</key>
-		<key name="TablespaceSelector.button.dedicated">Использовать указанное</key>
+		<key name="TablespaceSelector.button.usecommon">Невыделенное</key>
+		<key name="TablespaceSelector.button.usecommon.tooltip">Отдельное табличное пространсво создавать не требуетс</key>
+		<key name="TablespaceSelector.button.dedicated">Выделенное</key>
 		<key name="TablespaceSelector.button.dedicated.tooltip">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
-		<key name="TablespaceSelector.button.dedicated.help">Задайте имя табличного пространства, в котором будет создана ваша БД</key>
+		<key name="TablespaceSelector.button.schema">Имя схема</key>
+		<key name="TablespaceSelector.button.schema.tooltip">Задайте имя схемы в БД, где будут храниться данные</key>
 		
 <!-- Локализация класса UserAndPasswordSelector: --> 
 		<key name="UserAndPasswordSelector.user.label">Пользователь</key>
@@ -307,6 +316,9 @@
 		<key name="UserAndPasswordSelector.password.label">Пароль</key>
 		<key name="UserAndPasswordSelector.password.tooltip">Введите пароль</key>
 		<key name="UserAndPasswordSelector.password.help">Введите пароль</key>
+		<key name="UserAndPasswordSelector.schema">Имя схемы БД</key>
+		<key name="UserAndPasswordSelector.schema.tooltip">Введите имя схемы</key>
+		<key name="UserAndPasswordSelector.schema.help">Введите имя схемы</key>
 		
 <!-- Локализация класса ServiceNameSelector: --> 
 		<key name="ServiceNameSelector.service.label">Имя сервиса</key>

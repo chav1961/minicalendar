@@ -15,6 +15,7 @@ public class InstallationDescriptor implements ModuleAccessor {
 	public char[]		adminPassword = "test".toCharArray();
 	public boolean		tableSpaceSelected = false;
 	public String		tableSpace = "";
+	public String		schemaName = "minical";
 	public String		user = "user";
 	public char[]		userPassword = new char[] {'?'};
 	public String		serviceName = "minicalendar";

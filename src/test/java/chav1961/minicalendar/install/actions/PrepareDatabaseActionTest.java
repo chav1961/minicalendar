@@ -24,6 +24,6 @@ public class PrepareDatabaseActionTest {
 	public void createDatabaseTest() throws EnvironmentException, ContentException, IOException, SQLException {
 		final PrepareDatabaseAction	pda = new PrepareDatabaseAction(PureLibSettings.PURELIB_LOCALIZER, driver.toURI().toURL());
 		
-		pda.execute(PureLibSettings.CURRENT_LOGGER, driver, conn, admin, adminPassword, user, userPassword);
+		pda.execute(PureLibSettings.CURRENT_LOGGER, driver, conn, admin, adminPassword, user, userPassword, "");
 	}
 }
