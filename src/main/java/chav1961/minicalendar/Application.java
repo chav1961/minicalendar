@@ -31,7 +31,6 @@ import chav1961.purelib.model.ContentModelFactory;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface;
 import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
-import chav1961.purelib.ui.swing.interfaces.OnAction;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
 public class Application {

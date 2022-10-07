@@ -75,6 +75,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.driver = JDBCUtils.loadJdbcDriver(this.loader, props.getProperty(Application.PROP_JDBC_DRIVER, File.class));
 			this.conn = JDBCUtils.getConnection(driver, props.getProperty(Application.PROP_JDBC_CONN_STRING, URI.class), props.getProperty(Application.PROP_JDBC_USER), props.getProperty(Application.PROP_JDBC_PASSWORD, char[].class));
 			this.dbw = new DatabaseWrapper(conn);
+			this.conn.setSchema("minical");
 		}
 	}
 	
