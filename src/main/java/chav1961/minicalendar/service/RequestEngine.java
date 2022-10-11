@@ -117,12 +117,17 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
 
 		printStartPage(wr, langs[0]);
-//		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
-//		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
-//		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
-//		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
-//		wr.write("</p>\n</form>\n");
-//		wr.write("<hr/>\n");
+		printContent("alerts_header.html", langs[0], (s)->s, wr);
+		try(final ResultSet	rs = dbw.getEvents(100)) {
+			final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
+			
+			while (rs.next()) {
+				printContent("alerts_line.html", langs[0], ss, wr);
+			}
+		} catch (SQLException e) {
+			throw new IOException(e); 
+		}
+		printContent("alerts_footer.html", langs[0], (s)->s, wr);
 		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
@@ -133,12 +138,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
 
 		printStartPage(wr, langs[0]);
-//		wr.write("<form action=\"./search\" method=\"GET\" class=\"" + ResponseFormatter.SNIPPET_SEARCH_FORM_CLASS + "\" accept-charset=\"UTF-8\">\n");
-//		wr.write("<p>" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_LABEL) + ": ");
-//		wr.write("<input type=\"search\" id=\"query\" name=\"query\" placeholder=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_PLACEHOLDER) + "\" size=\"40\">\n");
-//		wr.write("<input type=\"submit\" value=\"" + getLocalizer().getValue(ResponseFormatter.SNIPPET_QUERY_SEARCH) + "\">\n");
-//		wr.write("</p>\n</form>\n");
-//		wr.write("<hr/>\n");
 		printEndPage(wr, langs[0]);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
@@ -168,7 +167,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	}
 
 	@Override
-	public void close() throws Exception {
+	public void close() throws IOException, SQLException {
 		dbw.close();
 		conn.close();
 		loader.close();

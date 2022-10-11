@@ -151,7 +151,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyBefore",
 						 "tooltipId":"minical.events.ev_NotifyBefore.tt",
-						 "appUri":"app:column:/minical.events/ev_NotifyBefore?seq=6&type=TIMESTAMP",
+						 "appUri":"app:column:/minical.events/ev_NotifyBefore?seq=6&type=INTERVAL",
 						 "relUri":"ev_NotifyBefore",
 					 	 "format":"ms"
 					},
@@ -159,7 +159,7 @@
 						 "type":"java.sql.Timestamp",
 						 "labelId":"minical.events.ev_NotifyAfter",
 						 "tooltipId":"minical.events.ev_NotifyAfter.tt",
-						 "appUri":"app:column:/minical.events/ev_NotifyAfter?seq=7&type=TIMESTAMP",
+						 "appUri":"app:column:/minical.events/ev_NotifyAfter?seq=7&type=INTERVAL",
 						 "relUri":"ev_NotifyAfter",
 					 	 "format":"ms"
 					},

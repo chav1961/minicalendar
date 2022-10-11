@@ -52,7 +52,6 @@ public class Application {
 	public static final String	PROP_JDBC_PASSWORD = "jdbcPassword";
 	
 	
-	private static final Timer			timer = new Timer(true);
 	private static final CountDownLatch	latch = new CountDownLatch(1);
 	private static JSystemTray			tray;
 	private static NanoServiceFactory	factory;
@@ -81,6 +80,8 @@ public class Application {
 				final int						portNumber = parser.getValue(ARG_PORT, int.class); 
 
 				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
+	
+				SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand(), args));
 				
 				tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 				factory = new NanoServiceFactory(tray, props);
@@ -89,10 +90,10 @@ public class Application {
 				tray.addActionListener((e)->callBrowser(portNumber));
 				lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
 				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
-				maint = new Maintenance(appProps, dbModel.getRoot());
+				maint = new Maintenance(appProps, dbModel.getRoot(), tray);
 
 				factory.deploy(PATH_CONTENT, engine);				
-				timer.schedule(maint, 30000, 30000);
+				PureLibSettings.COMMON_MAINTENANCE_TIMER.schedule(maint, 30000, 30000);
 				
 				factory.start();
 				if (!parser.getValue(ARG_AS_SERVICE,boolean.class)) {
@@ -113,6 +114,22 @@ public class Application {
 		}
 	}
 
+	private static void callTray(final String actionCommand, final String[] parameters) {
+		switch (actionCommand) {
+			case "action:/tray.site"	:
+				break;
+			case "action:/tray.show"	:
+				break;
+			case "action:/tray.about"	:
+				break;
+			case "action:/tray.quit"	:
+				terminate(parameters);
+				break;
+			default :
+				throw new UnsupportedOperationException("Action string ["+actionCommand+"] is not supported yet"); 
+		}
+	}
+
 	private static void callBrowser(final int portNumber) {
 		if (Desktop.isDesktopSupported()) {
 			try{Desktop.getDesktop().browse(URI.create("http://localhost:"+portNumber+"/static/index.html"));
@@ -126,15 +143,19 @@ public class Application {
 	}
 
 	public static void terminate(final String[] args) {
-		maint.cancel();
-		timer.purge();
-		
-		try{factory.stop();
-			factory.undeploy(PATH_CONTENT);
-		} catch (IOException exc) {
+		try{
+			maint.cancel();
+			if (factory.isStarted()) {
+				engine.close();
+				factory.stop();
+				factory.undeploy(PATH_CONTENT);
+			}
+		} catch (IOException | SQLException exc) {
 			tray.message(Severity.error, exc, exc.getLocalizedMessage());
+		} finally {
+			latch.countDown();
+			tray.close();
 		}
-		tray.close();
 	}
 
 	private static class ApplicationArgParser extends ArgParser {

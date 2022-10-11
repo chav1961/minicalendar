@@ -13,7 +13,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	private static final String		SQL_NOTIFICATION_TYPE = "select * from notificationtypes where nt_Id = ?";
 	private static final String		SQL_USERS = "select us_Id, us_Name from users";
 	private static final String		SQL_USER = "select * from Users where us_Id = ?";
-	private static final String		SQL_EVENTS = "select ev_Id, ev_Comment from events where us_Id = ?";
+	private static final String		SQL_EVENTS = "select eventId, eventType from totalevents where userId = ?";
 	private static final String		SQL_EVENT = "select * from events where us_Id = ? and ev_Id = ?";
 	private static final String		SQL_ATTACHMENTS = "select at_Id, at_Type from attachments where ev_Id = ?";
 	private static final String		SQL_ATTACHMENT = "select * from attachments where ev_Id = ? and at_Id = ?";
@@ -66,7 +66,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	}
 	
 	@Override
-	public void close() throws Exception {
+	public void close() throws SQLException {
 		final boolean	result = close(psNotificationTypes) & close(psNotificationType) & close(psUsers) & close(psUser)
 									& close(psEvents)& close(psEvent) & close(psAttachments) & close(psAttachment)
 									& close(psAlerts) & close(psAlert) & close(psUniqueId);
