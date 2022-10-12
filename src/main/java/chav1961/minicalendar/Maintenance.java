@@ -35,8 +35,9 @@ public class Maintenance extends TimerTask {
 	private final SubstitutableProperties	props;
 	private final ContentNodeMetadata		root;
 	private final JSystemTray				tray;
+	private final boolean					dontCreateUsers;
 	
-	public Maintenance(final SubstitutableProperties props, final ContentNodeMetadata root, final JSystemTray tray) {
+	public Maintenance(final SubstitutableProperties props, final ContentNodeMetadata root, final JSystemTray tray, final boolean dontCreateUsers) {
 		if (props == null) {
 			throw new NullPointerException("Properties can't be null");
 		}
@@ -50,6 +51,7 @@ public class Maintenance extends TimerTask {
 			this.props = props;
 			this.root = root;
 			this.tray = tray;
+			this.dontCreateUsers = dontCreateUsers;
 		}
 	}
 
@@ -67,6 +69,7 @@ public class Maintenance extends TimerTask {
 				
 				conn.setSchema("minical");
 				conn.setAutoCommit(false);
+				
 				try(final Statement		stmt = conn.createStatement();
 					final ResultSet		rs = stmt.executeQuery("select eventType, eventId, userId from totalevents, users where users.\"us_Id\" = totalevents.userId");
 					final PreparedStatement	ps = conn.prepareStatement("insert into alerts(\"al_Id\",\"ev_Id\",\"al_Created\",\"al_State\") values(?,?,now(),?)")) {

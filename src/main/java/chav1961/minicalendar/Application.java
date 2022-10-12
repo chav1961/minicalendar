@@ -43,6 +43,8 @@ public class Application {
 	public static final String	ARG_PROPFILE_LOCATION_DEFAULT = "./.minicalendar.properties";
 	public static final String	ARG_AS_SERVICE = "asService";
 	public static final boolean	ARG_AS_SERVICE_DEFAULT = false;
+	public static final String	ARG_DONT_CREATE_USERS = "dontCreateUsers";
+	public static final boolean	ARG_DONT_CREATE_USERS_DEFAULT = false;
 	
 	public static final String	PATH_CONTENT = "/content";
 
@@ -85,12 +87,12 @@ public class Application {
 				
 				tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 				factory = new NanoServiceFactory(tray, props);
-				engine = new RequestEngine(xda.getRoot(), localizer, tray, appProps);
-			
+				engine = new RequestEngine(xda.getRoot(), localizer, tray, appProps, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
+				
 				tray.addActionListener((e)->callBrowser(portNumber));
 				lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
 				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
-				maint = new Maintenance(appProps, dbModel.getRoot(), tray);
+				maint = new Maintenance(appProps, dbModel.getRoot(), tray, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
 
 				factory.deploy(PATH_CONTENT, engine);				
 				PureLibSettings.COMMON_MAINTENANCE_TIMER.schedule(maint, 30000, 30000);
@@ -162,7 +164,8 @@ public class Application {
 		private static final ArgParser.AbstractArg[]	KEYS = {
 			new IntegerArg(ARG_PORT, true, "Port to use for browser", ARG_PORT_DEFAULT),
 			new FileArg(ARG_PROPFILE_LOCATION, false, "Property file location", ARG_PROPFILE_LOCATION_DEFAULT),
-			new BooleanArg(ARG_AS_SERVICE, false, "Start application as service", ARG_AS_SERVICE_DEFAULT)
+			new BooleanArg(ARG_AS_SERVICE, false, "Start application as service", ARG_AS_SERVICE_DEFAULT),
+			new BooleanArg(ARG_DONT_CREATE_USERS, false, "Don't create new users automatically", ARG_DONT_CREATE_USERS_DEFAULT)
 		};
 		
 		private ApplicationArgParser() {

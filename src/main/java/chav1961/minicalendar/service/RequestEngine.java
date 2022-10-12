@@ -51,8 +51,9 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	private final Driver					driver;
 	private final Connection				conn;
 	private final DatabaseWrapper			dbw;
+	private final boolean					dontCreateUsers;
 	
-	public RequestEngine(final ContentNodeMetadata model, final Localizer localizer, final LoggerFacade logger, final SubstitutableProperties properties) throws IOException, ContentException, SQLException {
+	public RequestEngine(final ContentNodeMetadata model, final Localizer localizer, final LoggerFacade logger, final SubstitutableProperties properties, final boolean dontCreateUsers) throws IOException, ContentException, SQLException {
 		if (model == null) {
 			throw new NullPointerException("Model can't be null");
 		}
@@ -70,12 +71,26 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.localizer = localizer;
 			this.logger = logger;
 			this.props = properties;
+			this.dontCreateUsers = dontCreateUsers;
 			
 			this.loader = new SimpleURLClassLoader(new URL[] {});
 			this.driver = JDBCUtils.loadJdbcDriver(this.loader, props.getProperty(Application.PROP_JDBC_DRIVER, File.class));
 			this.conn = JDBCUtils.getConnection(driver, props.getProperty(Application.PROP_JDBC_CONN_STRING, URI.class), props.getProperty(Application.PROP_JDBC_USER), props.getProperty(Application.PROP_JDBC_PASSWORD, char[].class));
 			this.dbw = new DatabaseWrapper(conn);
 			this.conn.setSchema("minical");
+			
+//			if (!dontCreateUsers) {
+//				try(final PreparedStatement	ps = conn.prepareStatement("", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+//					ps.setString(1, System.getProperty("user.name"));
+//					
+//					try(final ResultSet		rs = ps.executeQuery()) {
+//						if () {
+//							
+//						}
+//					}
+//				}
+//			}
+			
 		}
 	}
 	
