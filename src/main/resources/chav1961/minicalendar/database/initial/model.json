@@ -283,7 +283,7 @@
 						 "type":"long",
 						 "labelId":"minical.alerts.al_State",
 						 "tooltipId":"minical.alerts.al_State.tt",
-						 "appUri":"app:column:/minical.alerts/al_State?seq=4&type=TEXT",
+						 "appUri":"app:column:/minical.alerts/al_State?seq=4&type=BIGINT",
 						 "relUri":"al_State",
 					 	 "format":"ml"
 					}

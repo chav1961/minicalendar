@@ -14,6 +14,8 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
 
 import chav1961.minicalendar.Application;
 import chav1961.minicalendar.database.DatabaseWrapper;
@@ -33,6 +35,7 @@ import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
 import chav1961.purelib.nanoservice.interfaces.FromHeader;
+import chav1961.purelib.nanoservice.interfaces.FromQuery;
 import chav1961.purelib.nanoservice.interfaces.Path;
 import chav1961.purelib.nanoservice.interfaces.RootPath;
 import chav1961.purelib.nanoservice.interfaces.ToBody;
@@ -107,21 +110,39 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	
 	@Path("/notificationtypes")
 	public int notificationTypes(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
 
-		printStartPage(wr, langs[0]);
-		printContent("notificationtypes_header.html", langs[0], (s)->s, wr);
+		printStartPage(wr, sLang);
+		printContent("notificationtypes_header.html", sLang, (s)->s, wr);
 		try(final ResultSet	rs = dbw.getNotificationTypes()) {
-			final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
-			
-			while (rs.next()) {
-				printContent("notificationtypes_line.html", langs[0], ss, wr);
-			}
+			printResultSetContent(rs, "notificationtypes_line.html", sLang, wr);
 		} catch (SQLException e) {
 			throw new IOException(e); 
 		}
-		printContent("notificationtypes_footer.html", langs[0], (s)->s, wr);
-		printEndPage(wr, langs[0]);
+		printContent("notificationtypes_footer.html", sLang, (s)->s, wr);
+		printEndPage(wr, sLang);
+		wr.flush();
+		return HttpURLConnection.HTTP_OK;
+	}	
+
+	@Path("/events")
+	public int events(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
+		final Calendar				currentDate = Calendar.getInstance();
+
+		currentDate.setTimeInMillis(System.currentTimeMillis());
+		
+		printStartPage(wr, sLang);
+		
+		printContent("events_header.html", sLang, (s)->s, wr);
+		try(final ResultSet	rs = dbw.getEventList(100)) {
+			printResultSetContent(rs, "events_line.html", sLang, wr);
+		} catch (SQLException e) {
+			throw new IOException(e); 
+		}
+		printContent("events_footer.html", sLang, (s)->s, wr);
+		
+		printEndPage(wr, sLang);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
@@ -129,31 +150,27 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	
 	@Path("/alerts")
 	public int alerts(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
 
-		printStartPage(wr, langs[0]);
-		printContent("alerts_header.html", langs[0], (s)->s, wr);
+		printStartPage(wr, sLang);
+		printContent("alerts_header.html", sLang, (s)->s, wr);
 		try(final ResultSet	rs = dbw.getEvents(100)) {
-			final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
-			
-			while (rs.next()) {
-				printContent("alerts_line.html", langs[0], ss, wr);
-			}
+			printResultSetContent(rs, "alerts_line.html", sLang, wr);
 		} catch (SQLException e) {
 			throw new IOException(e); 
 		}
-		printContent("alerts_footer.html", langs[0], (s)->s, wr);
-		printEndPage(wr, langs[0]);
+		printContent("alerts_footer.html", sLang, (s)->s, wr);
+		printEndPage(wr, sLang);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
 
 	@Path("/manage")
 	public int manage(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
-		final SupportedLanguages[]	langs = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru);
+		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
 
-		printStartPage(wr, langs[0]);
-		printEndPage(wr, langs[0]);
+		printStartPage(wr, sLang);
+		printEndPage(wr, sLang);
 		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
@@ -192,6 +209,25 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		printContent("startpage.html", lang, (s)->s, wr);
 	}
 
+	
+	private void printResultSetContent(final ResultSet rs, final String content, final SupportedLanguages langs, final Writer wr) throws IOException, SQLException {
+		final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
+	
+		while (rs.next()) {
+			printContent(content, langs, ss, wr);
+		}
+	}
+
+	private void printResultSetContent(final ResultSet rs, final String[] content, final SupportedLanguages langs, final Writer wr) throws IOException, SQLException {
+		final SubstitutionSource	ss = new ResultSetSubstitutionSource(rs);
+		int		count = 0;
+	
+		while (rs.next()) {
+			printContent(content[count], langs, ss, wr);
+			count = (count + 1) % content.length;
+		}
+	}
+	
 	private void printContent(final String content, final SupportedLanguages lang, final SubstitutionSource source, final Writer wr) throws IOException {
 		try(final InputStream	is = URI.create("root://"+getClass().getCanonicalName()+"/templates/"+lang.name()+"/"+content).toURL().openStream();
 			final Reader		rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING)) {

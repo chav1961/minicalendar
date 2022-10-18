@@ -129,3 +129,5 @@ union all
 select eventtype, eventid, userId from minical.currentevents
 union all
 select eventtype, eventid, userId from minical.overdueevents;
+
+

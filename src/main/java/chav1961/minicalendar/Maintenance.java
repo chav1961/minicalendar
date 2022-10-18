@@ -83,7 +83,9 @@ public class Maintenance extends TimerTask {
 					}
 				}
 				conn.commit();
-				tray.message(Severity.info, "count="+eventCount);
+				if (eventCount > 0) {
+					tray.message(Severity.info, "count="+eventCount);
+				}
 			} catch (SQLException exc) {
 				exc.printStackTrace();
 				// TODO Auto-generated catch block

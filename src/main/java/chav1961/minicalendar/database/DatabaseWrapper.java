@@ -13,6 +13,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	private static final String		SQL_NOTIFICATION_TYPE = "select * from notificationtypes where nt_Id = ?";
 	private static final String		SQL_USERS = "select us_Id, us_Name from users";
 	private static final String		SQL_USER = "select * from Users where us_Id = ?";
+	private static final String		SQL_EVENT_LIST = "select eventId, eventType from events where userId = ?";
 	private static final String		SQL_EVENTS = "select eventId, eventType from totalevents where userId = ?";
 	private static final String		SQL_EVENT = "select * from events where us_Id = ? and ev_Id = ?";
 	private static final String		SQL_ATTACHMENTS = "select at_Id, at_Type from attachments where ev_Id = ?";
@@ -25,6 +26,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	private final PreparedStatement	psNotificationType; 
 	private final PreparedStatement	psUsers; 
 	private final PreparedStatement	psUser; 
+	private final PreparedStatement	psEventList; 
 	private final PreparedStatement	psEvents; 
 	private final PreparedStatement	psEvent; 
 	private final PreparedStatement	psAttachments; 
@@ -42,6 +44,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 			this.psNotificationType = conn.prepareStatement(SQL_NOTIFICATION_TYPE, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psUsers = conn.prepareStatement(SQL_USERS, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psUser = conn.prepareStatement(SQL_USER, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			this.psEventList = conn.prepareStatement(SQL_EVENT_LIST, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psEvents = conn.prepareStatement(SQL_EVENTS, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psEvent = conn.prepareStatement(SQL_EVENT, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psAttachments = conn.prepareStatement(SQL_ATTACHMENTS, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -68,7 +71,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	@Override
 	public void close() throws SQLException {
 		final boolean	result = close(psNotificationTypes) & close(psNotificationType) & close(psUsers) & close(psUser)
-									& close(psEvents)& close(psEvent) & close(psAttachments) & close(psAttachment)
+									& close(psEventList) & close(psEvents) & close(psEvent) & close(psAttachments) & close(psAttachment)
 									& close(psAlerts) & close(psAlert) & close(psUniqueId);
 	}
 	
@@ -100,6 +103,14 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 		}
 	}
 
+	public ResultSet getEventList(final long userId) throws SQLException {
+		synchronized (psEventList) {
+			psEventList.setLong(1, userId);
+			
+			return psEventList.executeQuery();
+		}
+	}
+
 	public ResultSet getEvents(final long userId) throws SQLException {
 		synchronized (psEvents) {
 			psEvents.setLong(1, userId);
@@ -107,7 +118,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 			return psEvents.executeQuery();
 		}
 	}
-
+	
 	public ResultSet getEvent(final long userId, final long id) throws SQLException {
 		synchronized (psEvent) {
 			psEvent.setLong(1, userId);
