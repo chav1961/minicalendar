@@ -9,7 +9,6 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPopupMenu;

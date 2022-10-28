@@ -34,9 +34,12 @@ import chav1961.purelib.i18n.interfaces.LocalizerOwner;
 import chav1961.purelib.i18n.interfaces.SupportedLanguages;
 import chav1961.purelib.model.interfaces.ContentMetadataInterface.ContentNodeMetadata;
 import chav1961.purelib.model.interfaces.NodeMetadataOwner;
+import chav1961.purelib.nanoservice.interfaces.FromBody;
 import chav1961.purelib.nanoservice.interfaces.FromHeader;
 import chav1961.purelib.nanoservice.interfaces.FromQuery;
+import chav1961.purelib.nanoservice.interfaces.MultipartContent;
 import chav1961.purelib.nanoservice.interfaces.Path;
+import chav1961.purelib.nanoservice.interfaces.QueryType;
 import chav1961.purelib.nanoservice.interfaces.RootPath;
 import chav1961.purelib.nanoservice.interfaces.ToBody;
 import chav1961.purelib.sql.JDBCUtils;
@@ -147,6 +150,31 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
+	@Path(value="/events/insert",type={QueryType.POST})
+	public int insertEvent(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @FromBody(mimeType="multipart/form-data") final MultipartContent rdr, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
+		final Calendar				currentDate = Calendar.getInstance();
+		final MultipartContent		mc = rdr; 
+		
+//		final String ss = Utils.fromResource(new InputStreamReader(rdr));
+		
+		currentDate.setTimeInMillis(System.currentTimeMillis());
+		
+		printStartPage(wr, sLang);
+		
+		printContent("events_header.html", sLang, (s)->s, wr);
+		try(final ResultSet	rs = dbw.getEventList(100)) {
+			printResultSetContent(rs, "events_line.html", sLang, wr);
+		} catch (SQLException e) {
+			throw new IOException(e); 
+		}
+		printContent("events_footer.html", sLang, (s)->s, wr);
+		
+		printEndPage(wr, sLang);
+		wr.flush();
+		return HttpURLConnection.HTTP_OK;
+	}	
+
 	
 	@Path("/alerts")
 	public int alerts(@FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
