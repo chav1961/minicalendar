@@ -1,10 +1,13 @@
 package chav1961.minicalendar.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -44,6 +47,8 @@ import chav1961.purelib.nanoservice.interfaces.RootPath;
 import chav1961.purelib.nanoservice.interfaces.ToBody;
 import chav1961.purelib.sql.JDBCUtils;
 import chav1961.purelib.sql.ResultSetSubstitutionSource;
+import chav1961.purelib.streams.MultipartEntry;
+import chav1961.purelib.streams.byte2byte.MultipartInputStream;
 import chav1961.purelib.streams.char2char.SubstitutableWriter;
 
 @RootPath("/content")
@@ -151,10 +156,31 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	}	
 	
 	@Path(value="/events/insert",type={QueryType.POST})
-	public int insertEvent(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @FromBody(mimeType="multipart/form-data") final MultipartContent rdr, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
+	public int insertEvent(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @FromBody(mimeType="multipart/form-data") final InputStream is, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
 		final Calendar				currentDate = Calendar.getInstance();
-		final MultipartContent		mc = rdr; 
+		final MultipartInputStream	mis = new MultipartInputStream(is);
+		String						insertText = "";
+		byte[]						insertFile = new byte[0];
+		
+		MultipartEntry				me;
+
+		while((me = mis.getNextEntry()) != null) {
+			switch (me.getName()) {
+				case "insert"		:
+					break;
+				case "insertText"	:
+					insertText = extractTextContent(mis);
+					break;
+				case "insertFile"	:
+					insertFile = extractFileContent(mis);
+					break;
+				default :
+					break;
+			}
+		}
+		System.err.println("text="+insertText);
+		System.err.println("content="+insertFile.length);
 		
 //		final String ss = Utils.fromResource(new InputStreamReader(rdr));
 		
@@ -267,5 +293,20 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	
 	private void printEndPage(final Writer wr, final SupportedLanguages lang) throws IOException {
 		printContent("endpage.html", lang, (s)->s, wr);
+	}
+	
+	private String extractTextContent(final InputStream is) throws IOException {
+		final StringWriter	wr = new StringWriter();
+		
+		Utils.copyStream(new InputStreamReader(is), wr);
+		return wr.toString();
+	}
+
+	private byte[] extractFileContent(final InputStream is) throws IOException {
+		try(final ByteArrayOutputStream	baos = new ByteArrayOutputStream()) {
+			
+			Utils.copyStream(is, baos);
+			return baos.toByteArray();
+		}
 	}
 }
