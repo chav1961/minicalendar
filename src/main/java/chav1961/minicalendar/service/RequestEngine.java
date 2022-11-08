@@ -1,6 +1,6 @@
 package chav1961.minicalendar.service;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -10,18 +10,25 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Date;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import chav1961.minicalendar.Application;
+import chav1961.minicalendar.database.Attachments;
 import chav1961.minicalendar.database.DatabaseWrapper;
+import chav1961.minicalendar.database.Events;
+import chav1961.minicalendar.database.NotificationTypes;
+import chav1961.minicalendar.database.Users;
 import chav1961.purelib.basic.CharUtils.SubstitutionSource;
 import chav1961.purelib.basic.HttpUtils;
 import chav1961.purelib.basic.PureLibSettings;
@@ -40,7 +47,6 @@ import chav1961.purelib.model.interfaces.NodeMetadataOwner;
 import chav1961.purelib.nanoservice.interfaces.FromBody;
 import chav1961.purelib.nanoservice.interfaces.FromHeader;
 import chav1961.purelib.nanoservice.interfaces.FromQuery;
-import chav1961.purelib.nanoservice.interfaces.MultipartContent;
 import chav1961.purelib.nanoservice.interfaces.Path;
 import chav1961.purelib.nanoservice.interfaces.QueryType;
 import chav1961.purelib.nanoservice.interfaces.RootPath;
@@ -63,6 +69,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	private final Connection				conn;
 	private final DatabaseWrapper			dbw;
 	private final boolean					dontCreateUsers;
+	private final Proxy						httpsProxy;
 	
 	public RequestEngine(final ContentNodeMetadata model, final Localizer localizer, final LoggerFacade logger, final SubstitutableProperties properties, final boolean dontCreateUsers) throws IOException, ContentException, SQLException {
 		if (model == null) {
@@ -78,6 +85,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			throw new NullPointerException("Properties can't be null");
 		}
 		else {
+			final URI	proxy = URI.create(System.getenv("HTTPS_PROXY"));
+			
 			this.model = model;
 			this.localizer = localizer;
 			this.logger = logger;
@@ -89,6 +98,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.conn = JDBCUtils.getConnection(driver, props.getProperty(Application.PROP_JDBC_CONN_STRING, URI.class), props.getProperty(Application.PROP_JDBC_USER), props.getProperty(Application.PROP_JDBC_PASSWORD, char[].class));
 			this.dbw = new DatabaseWrapper(conn);
 			this.conn.setSchema("minical");
+			this.conn.setAutoCommit(false);
+			this.httpsProxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxy.getHost(), proxy.getPort()));
 			
 //			if (!dontCreateUsers) {
 //				try(final PreparedStatement	ps = conn.prepareStatement("", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
@@ -140,27 +151,30 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 
 		currentDate.setTimeInMillis(System.currentTimeMillis());
 		
-		printStartPage(wr, sLang);
-		
-		printContent("events_header.html", sLang, (s)->s, wr);
-		try(final ResultSet	rs = dbw.getEventList(100)) {
-			printResultSetContent(rs, "events_line.html", sLang, wr);
-		} catch (SQLException e) {
-			throw new IOException(e); 
-		}
-		printContent("events_footer.html", sLang, (s)->s, wr);
-		
-		printEndPage(wr, sLang);
-		wr.flush();
+		printEventsPage(wr, sLang);
+		int x = getDayOffState(2022, 11);
+//		printStartPage(wr, sLang);
+//		
+//		printContent("events_header.html", sLang, (s)->s, wr);
+//		try(final ResultSet	rs = dbw.getEventList(100)) {
+//			printResultSetContent(rs, "events_line.html", sLang, wr);
+//		} catch (SQLException e) {
+//			throw new IOException(e); 
+//		}
+//		printContent("events_footer.html", sLang, (s)->s, wr);
+//		
+//		printEndPage(wr, sLang);
+//		wr.flush();
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
 	@Path(value="/events/insert",type={QueryType.POST})
 	public int insertEvent(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @FromBody(mimeType="multipart/form-data") final InputStream is, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
+		final long					currentTime = System.currentTimeMillis();
 		final Calendar				currentDate = Calendar.getInstance();
 		final MultipartInputStream	mis = new MultipartInputStream(is);
-		String						insertText = "";
+		String						insertText = "", insertFileName = "";
 		byte[]						insertFile = new byte[0];
 		
 		MultipartEntry				me;
@@ -173,31 +187,61 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 					insertText = extractTextContent(mis);
 					break;
 				case "insertFile"	:
+					insertFileName = me.getProperty("filename");
 					insertFile = extractFileContent(mis);
 					break;
 				default :
 					break;
 			}
 		}
-		System.err.println("text="+insertText);
-		System.err.println("content="+insertFile.length);
+//		System.err.println("text="+insertText);
+//		System.err.println("content="+insertFile.length);
 		
-//		final String ss = Utils.fromResource(new InputStreamReader(rdr));
+		try{final Events			ev = new Events();
+			final Users				us = new Users();
+			final NotificationTypes	nt = new NotificationTypes(); 
+			final Timestamp			ts = new Timestamp(currentTime); 
 		
-		currentDate.setTimeInMillis(System.currentTimeMillis());
+			us.us_Id = DatabaseWrapper.userId;
+			nt.nt_Id = dbw.getId();
+			
+			ev.ev_Id = dbw.getId();
+			ev.us_Id = us;
+			ev.ev_Created = ts;
+			ev.ev_CronMask = "* * * * *";
+			ev.nt_Id = nt;
+			ev.ev_NotifyBefore = ts;
+			ev.ev_NotifyAfter = ts;
+			ev.ev_StartFrom = ts;
+			ev.ev_ExpectedTo = ts;
+			ev.ev_EventType = "event";
+			ev.ev_Comment = insertText;
 		
-		printStartPage(wr, sLang);
-		
-		printContent("events_header.html", sLang, (s)->s, wr);
-		try(final ResultSet	rs = dbw.getEventList(100)) {
-			printResultSetContent(rs, "events_line.html", sLang, wr);
+			dbw.insertEvent(ev);
+			
+			if (insertFile.length > 0) {
+				final Attachments	ats = new Attachments();
+				
+				ats.at_Id = dbw.getId();
+				ats.ev_Id = ev;
+				ats.at_Type = "???";
+				ats.at_Reference = insertFileName;
+				ats.at_Content = insertFile;
+			
+				dbw.insertAttachment(ats);
+			}
+			conn.commit();
 		} catch (SQLException e) {
-			throw new IOException(e); 
+			e.printStackTrace();
+			try{conn.rollback();
+			} catch (SQLException e1) {
+			}
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
 		}
-		printContent("events_footer.html", sLang, (s)->s, wr);
 		
-		printEndPage(wr, sLang);
-		wr.flush();
+		currentDate.setTimeInMillis(currentTime);
+		
+		printEventsPage(wr, sLang);
 		return HttpURLConnection.HTTP_OK;
 	}	
 
@@ -308,5 +352,42 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			Utils.copyStream(is, baos);
 			return baos.toByteArray();
 		}
+	}
+	
+	private void printEventsPage(final Writer wr, final SupportedLanguages sLang) throws IOException {
+		printStartPage(wr, sLang);
+		
+		printContent("events_header.html", sLang, (s)->s, wr);
+		try(final ResultSet	rs = dbw.getEventList(DatabaseWrapper.userId)) {
+			printResultSetContent(rs, "events_line.html", sLang, wr);
+		} catch (SQLException e) {
+			throw new IOException(e); 
+		}
+		printContent("events_footer.html", sLang, (s)->s, wr);
+		
+		printEndPage(wr, sLang);
+		wr.flush();
+	}
+	
+	private int getDayOffState(final int year, final int month) throws IOException {
+		final URI					dayOffURI = URI.create(String.format("https://isdayoff.ru/api/getdata?year=%1$4d&month=%2$2d&delimeter=%%0D", year, month));
+		final HttpsURLConnection	conn = (HttpsURLConnection)dayOffURI.toURL().openConnection(httpsProxy);
+		int							result = 0, marker = 1;
+		
+		try(final InputStream		is = conn.getInputStream();
+			final Reader			rdr = new InputStreamReader(is);
+			final BufferedReader	brdr = new BufferedReader(rdr)) {
+			String	line;
+			
+			while ((line = brdr.readLine()) != null) {
+				final int	value = Integer.valueOf(line.trim());
+				
+				marker <<= 1;
+				if (value == 1) {
+					result |= marker;
+				}
+			}
+		}
+		return result;
 	}
 }

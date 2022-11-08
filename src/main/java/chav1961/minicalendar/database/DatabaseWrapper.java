@@ -4,10 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import chav1961.purelib.sql.interfaces.UniqueIdGenerator;
 
 public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
+	public static final int 		userId = 1;
+	
 	private static final String		SQL_UNIQUE_ID = "select nextval('systemseq')";
 	private static final String		SQL_NOTIFICATION_TYPES = "select * from notificationtypes";
 	private static final String		SQL_NOTIFICATION_TYPE = "select * from notificationtypes where nt_Id = ?";
@@ -20,6 +23,9 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	private static final String		SQL_ATTACHMENT = "select * from attachments where ev_Id = ? and at_Id = ?";
 	private static final String		SQL_ALERTS = "select al_Id, al_State from alerts where us_Id = ?";
 	private static final String		SQL_ALERT = "select * from alerts where us_Id = ? and al_Id = ?";
+
+	private static final String		SQL_INSERT_EVENT = "insert into events(\"ev_Id\",\"us_Id\",\"ev_Created\",\"ev_CronMask\",\"nt_Id\",\"ev_NotifyBefore\",\"ev_NotifyAfter\",\"ev_StartFrom\",\"ev_ExpectedTo\",\"ev_EventType\",\"ev_Comment\") values (?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String		SQL_INSERT_ATTACHMENT = "insert into attachments(\"at_Id\",\"ev_Id\",\"at_Type\",\"at_Reference\",\"at_Content\") values (?,?,?,?,?)";
 	
 	private final PreparedStatement	psUniqueId; 
 	private final PreparedStatement	psNotificationTypes; 
@@ -33,6 +39,9 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	private final PreparedStatement	psAttachment; 
 	private final PreparedStatement	psAlerts; 
 	private final PreparedStatement	psAlert; 
+
+	private final PreparedStatement	psInsertEvent; 
+	private final PreparedStatement	psInsertAttachment; 
 	
 	public DatabaseWrapper(final Connection conn) throws SQLException {
 		if (conn == null) {
@@ -51,6 +60,9 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 			this.psAttachment = conn.prepareStatement(SQL_ATTACHMENT, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psAlerts = conn.prepareStatement(SQL_ALERTS, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			this.psAlert = conn.prepareStatement(SQL_ALERT, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+			this.psInsertEvent = conn.prepareStatement(SQL_INSERT_EVENT);
+			this.psInsertAttachment = conn.prepareStatement(SQL_INSERT_ATTACHMENT);
 		}
 	}
 
@@ -72,7 +84,7 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 	public void close() throws SQLException {
 		final boolean	result = close(psNotificationTypes) & close(psNotificationType) & close(psUsers) & close(psUser)
 									& close(psEventList) & close(psEvents) & close(psEvent) & close(psAttachments) & close(psAttachment)
-									& close(psAlerts) & close(psAlert) & close(psUniqueId);
+									& close(psAlerts) & close(psAlert) & close(psUniqueId) & close(psInsertEvent) & close(psInsertAttachment);
 	}
 	
 	public ResultSet getNotificationTypes() throws SQLException {
@@ -159,6 +171,46 @@ public class DatabaseWrapper implements AutoCloseable, UniqueIdGenerator {
 			psAlert.setLong(2, id);
 			
 			return psAlert.executeQuery();
+		}
+	}
+	
+	public void insertEvent(final Events event) throws SQLException {
+		if (event == null) {
+			throw new NullPointerException("Event descriptor can't be null");
+		}
+		else {
+			synchronized (psInsertEvent) {
+				psInsertEvent.setLong(1, event.ev_Id);
+				psInsertEvent.setLong(2, userId);
+				psInsertEvent.setTimestamp(3, event.ev_Created);
+				psInsertEvent.setString(4, event.ev_CronMask);
+				psInsertEvent.setLong(5, event.nt_Id.nt_Id);
+				psInsertEvent.setTimestamp(6, event.ev_NotifyBefore);
+				psInsertEvent.setTimestamp(7, event.ev_NotifyAfter);
+				psInsertEvent.setTimestamp(8, event.ev_StartFrom);
+				psInsertEvent.setTimestamp(9, event.ev_ExpectedTo);
+				psInsertEvent.setString(10, event.ev_EventType);
+				psInsertEvent.setString(11, event.ev_Comment);
+				
+				psInsertEvent.executeUpdate();
+			}
+		}
+	}
+
+	public void insertAttachment(final Attachments att) throws SQLException {
+		if (att == null) {
+			throw new NullPointerException("Attachment descriptor can't be null");
+		}
+		else {
+			synchronized (psInsertAttachment) {
+				psInsertAttachment.setLong(1, att.at_Id);
+				psInsertAttachment.setLong(2, att.ev_Id.ev_Id);
+				psInsertAttachment.setString(3, att.at_Type);
+				psInsertAttachment.setString(4, att.at_Reference);
+				psInsertAttachment.setBytes(5, att.at_Content);
+				
+				psInsertAttachment.executeUpdate();
+			}
 		}
 	}
 	

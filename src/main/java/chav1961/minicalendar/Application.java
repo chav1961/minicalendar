@@ -32,6 +32,8 @@ import chav1961.purelib.nanoservice.NanoServiceFactory;
 import chav1961.purelib.ui.swing.SwingUtils;
 import chav1961.purelib.ui.swing.useful.JSystemTray;
 
+// https://isdayoff.ru/api/getdata?year=2022&month=11&delimeter=%0A
+
 public class Application {
 	public static final String	APP_NAME = "application.name";
 	public static final String	APP_TOOLTIP = "application.tooltip";
