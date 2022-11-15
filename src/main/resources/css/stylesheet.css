@@ -872,10 +872,45 @@ table.striped > tbody > tr > th {
     font-weight: normal;
 }
 
+table.calendar {
+	width:100vw;
+	height:100vh;
+}
+
+table.calendar > tbody > tr > td {
+	width:12vw;
+	height:16vh;
+}
+
+table.eventListItem {
+	width:100px;
+}
+
 td.celebrated {
 	border: 1px solid red;
+}
+
+td.celebrated > table >tbody > tr > td.dayOfWeek {
+    color:red;
 }
 
 td.ordinal {
 	border: 1px solid black;
 }
+
+td.ordinal > table >tbody > tr > td.dayOfWeek {
+    color:black;
+}
+
+td.dayOfWeek {
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size:32px;
+    font-weight:bold;
+    text-align:right;
+    vertical-align:top;
+    padding:5;
+    width:50px;
+    height:50px;
+}
+
+

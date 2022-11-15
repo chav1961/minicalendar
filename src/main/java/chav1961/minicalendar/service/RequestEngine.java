@@ -60,6 +60,7 @@ import chav1961.purelib.streams.char2char.SubstitutableWriter;
 
 @RootPath("/content")
 public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacadeOwner, LocalizerOwner, NodeMetadataOwner {
+	private static final String[]			DAYS_OF_WEEK = {"week.sunday", "week.monday", "week.tuesday", "week.wednesday", "week.thursday", "week.friday", "week.saturday"};
 	
 	private final Localizer					localizer;
 	private final LoggerFacade				logger;
@@ -86,7 +87,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			throw new NullPointerException("Properties can't be null");
 		}
 		else {
-			final URI	proxy = URI.create(System.getenv("HTTPS_PROXY"));
+			
 			
 			this.model = model;
 			this.localizer = localizer;
@@ -100,7 +101,16 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			this.dbw = new DatabaseWrapper(conn);
 			this.conn.setSchema("minical");
 			this.conn.setAutoCommit(false);
-			this.httpsProxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxy.getHost(), proxy.getPort()));
+			
+			final String 	proxy = System.getenv("HTTPS_PROXY");
+			if (proxy != null && !proxy.isEmpty()) {
+				final URI	proxyURI = URI.create(proxy);
+				
+				this.httpsProxy = new java.net.Proxy(java.net.Proxy.Type.HTTP, new InetSocketAddress(proxyURI.getHost(), proxyURI.getPort()));
+			}
+			else {
+				this.httpsProxy = null;
+			}
 			
 //			if (!dontCreateUsers) {
 //				try(final PreparedStatement	ps = conn.prepareStatement("", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
@@ -162,10 +172,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			startMonthDay--;
 		}
 		
-//		printEventsPage(wr, sLang);
-		
-		System.err.println("Days="+celebrates);
-		
 		printStartPage(wr, sLang);
 		printContent("events_cal_start.html", sLang, (s)->s, wr);
 		for (int row = 0; row < 5; row++) {
@@ -175,13 +181,24 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 				
 				if (startFrom >= startDay && startFrom <= endDay) {
 					final boolean	isRed = (celebrates & 0x01) != 0; 	
-					System.err.println("StartFrom="+startFrom+", isRed="+isRed);
 					printContent("events_cal_cell.html", sLang, (s)->{
 						switch (s) {
+							case "dayOfMonth" :
+								return ""+currentDay;
 							case "dayOfWeek" :
-								return "dow="+currentCol+", day="+currentDay+", isRed="+isRed;
+								return getLocalizer().getValue(DAYS_OF_WEEK[currentCol]);
 							case "celebratedClass" :
 								return isRed ? "celebrated" : "ordinal";
+							case "eventList" :
+								try(final Writer	nested = new StringWriter()) {
+									printContent("events_cal_cell_header.html", sLang, (sn)->sn, nested);
+									
+									printContent("events_cal_cell_footer.html", sLang, (sn)->sn, nested);
+									nested.flush();
+									return nested.toString();
+								} catch (IOException e) {
+									return "Content error";
+								}
 							default :
 								return "?";
 						}
@@ -198,7 +215,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		printContent("events_cal_end.html", sLang, (s)->s, wr);
 		printEndPage(wr, sLang);
 		wr.flush();
-		System.err.println("Ready...");
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
@@ -404,8 +420,8 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 //	}
 	
 	private int getDayOffState(final int year, final int month) throws IOException {
-		final URI					dayOffURI = URI.create(String.format("https://isdayoff.ru/api/getdata?year=%1$4d&month=%2$2d&delimeter=%%0D", year, month));
-		final HttpsURLConnection	conn = (HttpsURLConnection)dayOffURI.toURL().openConnection(httpsProxy);
+		final URL					dayOffURL = URI.create(String.format("https://isdayoff.ru/api/getdata?year=%1$4d&month=%2$2d&delimeter=%%0D", year, month)).toURL();
+		final HttpsURLConnection	conn = httpsProxy != null ? (HttpsURLConnection)dayOffURL.openConnection(httpsProxy) : (HttpsURLConnection)dayOffURL.openConnection();
 		int							result = 0, marker = 1;
 		
 		try(final InputStream		is = conn.getInputStream();

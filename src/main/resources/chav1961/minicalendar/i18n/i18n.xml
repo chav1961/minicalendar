@@ -14,7 +14,15 @@
 		<key name="tray.about.tt">About</key>
 		<key name="tray.quit">Quit</key>
 		<key name="tray.quit.tt">Quit</key>
-		
+
+<!-- Localization for ays of week --> 
+		<key name="week.sunday">Sun</key>
+		<key name="week.monday">Mon</key>
+		<key name="week.tuesday">Tue</key>
+		<key name="week.wednesday">Wed</key>
+		<key name="week.thursday">Thu</key>
+		<key name="week.friday">Fri</key>
+		<key name="week.saturday">Sat</key>
 		
 	</lang>
 	<lang name="ru">
@@ -31,6 +39,15 @@
 		<key name="tray.about.tt">About</key>
 		<key name="tray.quit">Quit</key>
 		<key name="tray.quit.tt">Quit</key>
+
+<!-- Локализация дней недели --> 
+		<key name="week.sunday">Вс</key>
+		<key name="week.monday">Пн</key>
+		<key name="week.tuesday">Вт</key>
+		<key name="week.wednesday">Ср</key>
+		<key name="week.thursday">Чт</key>
+		<key name="week.friday">Пт</key>
+		<key name="week.saturday">Сб</key>
 
 	</lang>
 </localization>
