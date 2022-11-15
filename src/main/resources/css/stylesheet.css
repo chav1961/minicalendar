@@ -871,3 +871,11 @@ table.striped > tbody > tr > th, table.striped > tbody > tr > td {
 table.striped > tbody > tr > th {
     font-weight: normal;
 }
+
+td.celebrated {
+	border: 1px solid red;
+}
+
+td.ordinal {
+	border: 1px solid black;
+}

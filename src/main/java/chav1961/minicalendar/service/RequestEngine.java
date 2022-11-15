@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -147,24 +148,57 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 	@Path("/events")
 	public int events(@FromQuery("month") String month, @FromHeader("Accept-Language") final String lang, @ToBody(mimeType="text/html") final Writer wr) throws IOException {
 		final SupportedLanguages	sLang = HttpUtils.extractSupportedLanguages(lang, SupportedLanguages.ru)[0];
-		final Calendar				currentDate = Calendar.getInstance();
+		final Calendar				currentDate = Calendar.getInstance(Locale.getDefault());
+		final int					startDay = currentDate.getActualMinimum(Calendar.DAY_OF_MONTH), endDay = currentDate.getActualMaximum(Calendar.DAY_OF_MONTH);   
+		int 						celebrates = getDayOffState(currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH)+1);
 
 		currentDate.setTimeInMillis(System.currentTimeMillis());
 		
-		printEventsPage(wr, sLang);
-		int x = getDayOffState(2022, 11);
-//		printStartPage(wr, sLang);
-//		
-//		printContent("events_header.html", sLang, (s)->s, wr);
-//		try(final ResultSet	rs = dbw.getEventList(100)) {
-//			printResultSetContent(rs, "events_line.html", sLang, wr);
-//		} catch (SQLException e) {
-//			throw new IOException(e); 
-//		}
-//		printContent("events_footer.html", sLang, (s)->s, wr);
-//		
-//		printEndPage(wr, sLang);
-//		wr.flush();
+		currentDate.set(Calendar.DAY_OF_MONTH, 1);
+		int		startMonthDay = currentDate.get(Calendar.DAY_OF_WEEK), startFrom = 1;
+		
+		while (startMonthDay > 1) {
+			startFrom--;
+			startMonthDay--;
+		}
+		
+//		printEventsPage(wr, sLang);
+		
+		System.err.println("Days="+celebrates);
+		
+		printStartPage(wr, sLang);
+		printContent("events_cal_start.html", sLang, (s)->s, wr);
+		for (int row = 0; row < 5; row++) {
+			printContent("events_cal_start_line.html", sLang, (s)->s, wr);
+			for (int col = 0; col < 7; col++) {
+				final int currentCol = col, currentDay = startFrom;
+				
+				if (startFrom >= startDay && startFrom <= endDay) {
+					final boolean	isRed = (celebrates & 0x01) != 0; 	
+					System.err.println("StartFrom="+startFrom+", isRed="+isRed);
+					printContent("events_cal_cell.html", sLang, (s)->{
+						switch (s) {
+							case "dayOfWeek" :
+								return "dow="+currentCol+", day="+currentDay+", isRed="+isRed;
+							case "celebratedClass" :
+								return isRed ? "celebrated" : "ordinal";
+							default :
+								return "?";
+						}
+					}, wr);
+					celebrates >>= 1;
+				}
+				else {
+					printContent("events_cal_empty_cell.html", sLang, (s)->s, wr);
+				}
+				startFrom++;
+			}
+			printContent("events_cal_end_line.html", sLang, (s)->s, wr);
+		}
+		printContent("events_cal_end.html", sLang, (s)->s, wr);
+		printEndPage(wr, sLang);
+		wr.flush();
+		System.err.println("Ready...");
 		return HttpURLConnection.HTTP_OK;
 	}	
 	
@@ -241,7 +275,7 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		
 		currentDate.setTimeInMillis(currentTime);
 		
-		printEventsPage(wr, sLang);
+//		printEventsPage(wr, sLang);
 		return HttpURLConnection.HTTP_OK;
 	}	
 
@@ -354,20 +388,20 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 		}
 	}
 	
-	private void printEventsPage(final Writer wr, final SupportedLanguages sLang) throws IOException {
-		printStartPage(wr, sLang);
-		
-		printContent("events_header.html", sLang, (s)->s, wr);
-		try(final ResultSet	rs = dbw.getEventList(DatabaseWrapper.userId)) {
-			printResultSetContent(rs, "events_line.html", sLang, wr);
-		} catch (SQLException e) {
-			throw new IOException(e); 
-		}
-		printContent("events_footer.html", sLang, (s)->s, wr);
-		
-		printEndPage(wr, sLang);
-		wr.flush();
-	}
+//	private void printEventsPage(final Writer wr, final SupportedLanguages sLang) throws IOException {
+//		printStartPage(wr, sLang);
+//		
+//		printContent("events_header.html", sLang, (s)->s, wr);
+//		try(final ResultSet	rs = dbw.getEventList(DatabaseWrapper.userId)) {
+//			printResultSetContent(rs, "events_line.html", sLang, wr);
+//		} catch (SQLException e) {
+//			throw new IOException(e); 
+//		}
+//		printContent("events_footer.html", sLang, (s)->s, wr);
+//		
+//		printEndPage(wr, sLang);
+//		wr.flush();
+//	}
 	
 	private int getDayOffState(final int year, final int month) throws IOException {
 		final URI					dayOffURI = URI.create(String.format("https://isdayoff.ru/api/getdata?year=%1$4d&month=%2$2d&delimeter=%%0D", year, month));
@@ -382,10 +416,10 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			while ((line = brdr.readLine()) != null) {
 				final int	value = Integer.valueOf(line.trim());
 				
-				marker <<= 1;
 				if (value == 1) {
 					result |= marker;
 				}
+				marker <<= 1;
 			}
 		}
 		return result;
