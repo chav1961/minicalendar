@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JPopupMenu;
@@ -53,7 +54,7 @@ public class Application {
 	public static final String	PROP_JDBC_CONN_STRING = "jdbcConnString";
 	public static final String	PROP_JDBC_USER = "jdbcUser";
 	public static final String	PROP_JDBC_PASSWORD = "jdbcPassword";
-	
+	public static final String	PROP_MANDATORY_KEYS[] = {PROP_JDBC_DRIVER, PROP_JDBC_CONN_STRING, PROP_JDBC_USER, PROP_JDBC_PASSWORD};
 	
 	private static final CountDownLatch	latch = new CountDownLatch(1);
 	private static JSystemTray			tray;
@@ -82,29 +83,34 @@ public class Application {
 				final SubstitutableProperties	appProps = SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class));
 				final int						portNumber = parser.getValue(ARG_PORT, int.class); 
 
-				PureLibSettings.PURELIB_LOCALIZER.push(localizer);
+				if (!appProps.containsAllKeys((Object[])PROP_MANDATORY_KEYS)) {
+					throw new CommandLineParametersException("Property file ["+parser.getValue(ARG_PROPFILE_LOCATION, File.class)+"] doesn't contain all mandatory keys. At least "+Arrays.toString(PROP_MANDATORY_KEYS)+" must be typed");
+				}
+				else {
+					PureLibSettings.PURELIB_LOCALIZER.push(localizer);
+		
+					SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand(), args));
+					
+					tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
+					factory = new NanoServiceFactory(tray, props);
+					engine = new RequestEngine(xda.getRoot(), localizer, tray, appProps, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
+					
+					tray.addActionListener((e)->callBrowser(portNumber));
+					lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
+					PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
+					maint = new Maintenance(appProps, dbModel.getRoot(), tray, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
 	
-				SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand(), args));
-				
-				tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
-				factory = new NanoServiceFactory(tray, props);
-				engine = new RequestEngine(xda.getRoot(), localizer, tray, appProps, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
-				
-				tray.addActionListener((e)->callBrowser(portNumber));
-				lcl = (oldLocale,newLocale)->tray.localeChanged(oldLocale, newLocale);
-				PureLibSettings.PURELIB_LOCALIZER.addLocaleChangeListener(lcl);
-				maint = new Maintenance(appProps, dbModel.getRoot(), tray, parser.getValue(ARG_DONT_CREATE_USERS, boolean.class));
-
-				factory.deploy(PATH_CONTENT, engine);				
-				PureLibSettings.COMMON_MAINTENANCE_TIMER.schedule(maint, 30000, 30000);
-				
-				factory.start();
-				if (!parser.getValue(ARG_AS_SERVICE,boolean.class)) {
-					try{
-						latch.await();
-					} catch (InterruptedException exc) {
-					} finally {
-						terminate(args);
+					factory.deploy(PATH_CONTENT, engine);				
+					PureLibSettings.COMMON_MAINTENANCE_TIMER.schedule(maint, 30000, 30000);
+					
+					factory.start();
+					if (!parser.getValue(ARG_AS_SERVICE,boolean.class)) {
+						try{
+							latch.await();
+						} catch (InterruptedException exc) {
+						} finally {
+							terminate(args);
+						}
 					}
 				}
 			} catch (URISyntaxException | EnvironmentException | IOException | ContentException | SQLException exc) {

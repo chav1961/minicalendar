@@ -87,8 +87,6 @@ public class RequestEngine implements ModuleAccessor, AutoCloseable, LoggerFacad
 			throw new NullPointerException("Properties can't be null");
 		}
 		else {
-			
-			
 			this.model = model;
 			this.localizer = localizer;
 			this.logger = logger;
