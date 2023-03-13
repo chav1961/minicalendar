@@ -19,6 +19,7 @@ import chav1961.minicalendar.install.actions.ActionInterface.State;
 import chav1961.purelib.basic.PureLibSettings;
 import chav1961.purelib.basic.SubstitutableProperties;
 import chav1961.purelib.basic.Utils;
+import chav1961.purelib.basic.CharUtils.SubstitutionSource;
 import chav1961.purelib.basic.interfaces.LoggerFacade;
 import chav1961.purelib.basic.interfaces.LoggerFacade.Severity;
 import chav1961.purelib.basic.interfaces.ProgressIndicator;
@@ -176,7 +177,7 @@ public class PrepareRegistryAction implements ActionInterface<InstallationDescri
 			final Reader				rdr = new InputStreamReader(is, PureLibSettings.DEFAULT_CONTENT_ENCODING);
 			final OutputStream			os = new FileOutputStream(configFile);
 			final Writer				wr = new OutputStreamWriter(os, PureLibSettings.DEFAULT_CONTENT_ENCODING);
-			final SubstitutableWriter	swr = new SubstitutableWriter(wr, sp)) {
+			final SubstitutableWriter	swr = new SubstitutableWriter(wr, (SubstitutionSource)sp)) {
 			
 			Utils.copyStream(rdr, swr);			
 		}
