@@ -83,7 +83,7 @@ public class Application {
 				final SubstitutableProperties	appProps = SubstitutableProperties.of(parser.getValue(ARG_PROPFILE_LOCATION, File.class));
 				final int						portNumber = parser.getValue(ARG_PORT, int.class); 
 
-				if (!appProps.containsAllKeys((Object[])PROP_MANDATORY_KEYS)) {
+				if (!appProps.containsAllKeys(PROP_MANDATORY_KEYS)) {
 					throw new CommandLineParametersException("Property file ["+parser.getValue(ARG_PROPFILE_LOCATION, File.class)+"] doesn't contain all mandatory keys. At least "+Arrays.toString(PROP_MANDATORY_KEYS)+" must be typed");
 				}
 				else {
