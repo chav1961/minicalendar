@@ -89,7 +89,7 @@ public class Application {
 				else {
 					PureLibSettings.PURELIB_LOCALIZER.push(localizer);
 		
-					SwingUtils.assignActionListeners(trayMenu, (e)->callTray(e.getActionCommand(), args));
+					SwingUtils.assignActionListeners(trayMenu, (e)->callTray(tray, e.getActionCommand(), args));
 					
 					tray = new JSystemTray(localizer, APP_NAME, Application.class.getResource("tray.png").toURI(), APP_TOOLTIP, trayMenu, false);
 					factory = new NanoServiceFactory(tray, props);
@@ -123,13 +123,14 @@ public class Application {
 		}
 	}
 
-	private static void callTray(final String actionCommand, final String[] parameters) {
+	private static void callTray(final JSystemTray tray, final String actionCommand, final String[] parameters) {
 		switch (actionCommand) {
 			case "action:/tray.site"	:
 				break;
 			case "action:/tray.show"	:
 				break;
 			case "action:/tray.about"	:
+				tray.message(Severity.note, "Ура!!!");
 				break;
 			case "action:/tray.quit"	:
 				terminate(parameters);
